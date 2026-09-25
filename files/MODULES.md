@@ -99,23 +99,33 @@ Each card: **Purpose · Public API · Reads · Writes · Must not · Invariants 
 
 ## Meta
 
-### Daily — `engine/daily.ts`
-- **Purpose** Seed per UTC calendar day; one attempt per day.
-- **Public API** `dailySeed(date) → number`; `dailyKey(date) → "YYYY-MM-DD"`.
+### Daily — `engine/daily.ts` — DONE
+- **Purpose** Seed per UTC calendar day; one attempt per day (the attempt is enforced by Progress + Session).
+- **Public API** `dailyKey(date) → "YYYY-MM-DD"`, `dailySeed(date)`, `dailySeedForKey(key)` (FNV-1a over `runestone-daily:<key>`; the literal is pinned in a test because changing it changes every player's board), `monthKey(date)`, `daysInMonth(yyyyMm)`, `daysOfMonth(yyyyMm)`.
 - **Invariants** stable across timezones (UTC only); the same key on two devices gives the same seed (R7).
-- **Tests** boundary at 23:59:59Z vs 00:00:00Z; two dates, two seeds.
+- **Tests** `engine.tests/daily.test.ts`: boundary at 23:59:59Z vs 00:00:00Z; a local-time instant maps to its UTC day; two dates, two seeds; pinned seed literal; month helpers.
 
-### Progress — `engine/progress.ts`
-- **Purpose** High score, days played, monthly trophy state, remove-ads flag, serialization. No game logic.
-- **Public API** `record(runResult)`, `markDaily(key)`, `monthComplete(yyyyMm)`, `serialize()/deserialize()`.
+### Progress — `engine/progress.ts` — DONE
+- **Purpose** High score, runs played, days played with their best, monthly trophy state, remove-ads flag, serialization. No game logic.
+- **Public API** `record({ mode, score, placements, endedBy, dailyKey? })`, `markDaily(key, score?)`, `dailyDone(key)`, `dailyBest(key)`, `daysDone(yyyyMm)`, `monthComplete(yyyyMm)`, `setAdsRemoved`, `highScore`, `runsPlayed`, `adsRemoved`, `serialize() → ProgressSave` (version 1), `Progress.deserialize(unknown)` (tolerant: garbage falls back to empty, never throws).
 - **Must not** compute a rule or read the grid.
-- **Tests** round trip; a month is complete only when every day is marked; high score only rises.
+- **Tests** `engine.tests/progress.test.ts`: high score only rises; a daily run marks its day and keeps the best; a month is complete only when every day is marked; JSON round trip; garbage and partial saves.
+
+## Session (outside the engine, inside `game/`; Pixi-free)
+
+### Session — `game/session.ts` — DONE
+- **Purpose** The run lifecycle: boot (load Progress, resume a saved run or start endless), start endless or daily, place on drop, the rewarded-ad continue (R3), record Progress and save, analytics. The scene implements `SessionView` (replay, offerContinue, pickContinueCell, setStatus) and nothing else touches `Run`.
+- **Public API** `new Session({ shapes, config, ops, view, now, randomSeed })`; `boot()`, `startEndless()`, `startDaily() → boolean` (false when today is done), `drop(handIndex, origin)`, `run`, `mode`, `progress`, `continueAvailable`, `status()`, `viewState()`. Save keys `runestone.progress.v1` and `runestone.run.v1` (the run save is removed when the run ends).
+- **Reads** `Run`, `Progress`, `Daily`, `ops.ads.rewardedAvailable/showRewarded`, `ops.save`, `ops.analytics`. **Writes** the save store and analytics.
+- **Must not** import Pixi; decide a rule (every decision is `Run`'s); offer a continue the engine did not (it only passes `continueAvailable` in).
+- **Invariants** `continueAvailable` is refreshed after every action and false once used; a run in flight survives a restart byte-for-byte (state and event log); a finished run records Progress exactly once; the daily seed is `dailySeedForKey(dailyKey(now()))`.
+- **Tests** `game/session.test.ts` with `fakeOps()` and a stub view: boot fresh; drop then rebuild from the save snapshot and compare; finished run records and clears; garbage saves; continue offered → ad → pick → continues; declined; skipped early; no ad loaded means no offer; mid-offer save re-offers on boot; daily seed, one attempt, survives restart; two devices same day same board.
 
 ## Ops (outside the engine; the view's window on the world)
 
 ### Ops ports — `ops/*.ts`, fakes in `ops/fake/`, real in `ops/real/`
 - **Purpose** Ads, purchases, analytics and save behind four interfaces so the view and tests never touch an SDK (R16).
-- **Public API** `Ops { ads: AdsPort, iap: IapPort, analytics: AnalyticsPort, save: SavePort }`; `fakeOps()` in tests. Method lists are in the interface files and are the contract; a real implementation that needs another method changes the interface, its fake and this card in the same commit.
+- **Public API** `Ops { ads: AdsPort, iap: IapPort, analytics: AnalyticsPort, save: SavePort }`; `fakeOps()` in tests. Real: `ops/real/admob.ts` (step 1), `ops/real/localSave.ts` (step 6: Web Storage on both platforms; Preferences can replace it on the phone without changing keys). Method lists are in the interface files and are the contract; a real implementation that needs another method changes the interface, its fake and this card in the same commit.
 - **Must not** be imported by `engine/` (layer guard); construct a port inside the view; send analytics before `setConsent(true)`.
 - **Invariants** `showRewarded` resolves true only on the reward event; interstitials return false once ads are removed; `FakeSave` round-trips through `snapshot()` to simulate a restart.
 - **Tests** `ops/fake/fakes.test.ts` (one per invariant). Real implementations are verified on device per `STEP1_EXPORT.md`, never in CI.

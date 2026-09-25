@@ -37,6 +37,10 @@ export async function replayEvents(ctx: GameContext, events: readonly GameEvent[
         ctx.hand.syncHand(hand);
         await dealHand(ctx);
         break;
+      case "ContinueUsed":
+        // Same cue as a line clear; the budget line is "line clear flash, blocks pop".
+        if (event.cells.length > 0) await clearCue(ctx, { rows: [event.row], cols: [event.col], cells: event.cells });
+        break;
       case "RunEnded":
         await gameOver(ctx, event.score);
         break;
@@ -78,7 +82,7 @@ async function snapPlaced(ctx: GameContext, event: Ev<"Placed">): Promise<void> 
   });
 }
 
-async function clearCue(ctx: GameContext, event: Ev<"LinesCleared">): Promise<void> {
+async function clearCue(ctx: GameContext, event: Pick<Ev<"LinesCleared">, "rows" | "cols" | "cells">): Promise<void> {
   ctx.sfx.play("clear", event.rows.length + event.cols.length);
   ctx.board.setCellsState(event.cells, "lit");
   await tween(ctx.app, 120, () => {});
@@ -134,5 +138,5 @@ async function gameOver(ctx: GameContext, score: number): Promise<void> {
   });
   boardRoot.x = startX;
   boardRoot.alpha = 0.4;
-  ctx.hud.showGameOver(score, ctx.onNewRun);
+  void score; // the overlay is shown by applyViewState from the final ViewState
 }

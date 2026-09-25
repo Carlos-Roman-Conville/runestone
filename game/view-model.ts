@@ -17,13 +17,14 @@ export interface ViewState {
   readonly hand: readonly (string | null)[];
   readonly score: number;
   readonly streak: number;
-  readonly phase: "playing" | "ended";
+  /** Mirrors RunState.phase. continue_offered: the session is asking about the ad. */
+  readonly phase: "playing" | "continue_offered" | "ended";
   readonly lastPlacement: LastPlacementView | null;
 }
 
 /** Maps post-action run state plus that action's events into drawable view state. */
 export function reduce(state: RunState, events: readonly GameEvent[]): ViewState {
-  const phase: ViewState["phase"] = state.phase === "ended" ? "ended" : "playing";
+  const phase: ViewState["phase"] = state.phase;
 
   if (events.some((e) => e.type === "PlacementRejected")) {
     return {

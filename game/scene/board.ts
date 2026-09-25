@@ -1,4 +1,4 @@
-import { Container, Sprite, Texture } from "pixi.js";
+import { Container, type FederatedPointerEvent, Rectangle, Sprite, Texture } from "pixi.js";
 import type { Pos } from "../../engine/grid.js";
 import type { Shape } from "../../engine/shapes.js";
 import { BOARD_CELLS, BOARD_PX, BOARD_X, BOARD_Y, CELL_PX } from "../layout.js";
@@ -91,6 +91,51 @@ export class BoardView {
       x: BOARD_X + (origin.x + cell.x) * CELL_PX + CELL_PX / 2,
       y: BOARD_Y + (origin.y + cell.y) * CELL_PX + CELL_PX / 2,
     };
+  }
+
+  /**
+   * Continue (R3): let the player choose a cell; its row and column will clear. Shows a
+   * ghost cross under the pointer, resolves on tap. The board decides nothing about what
+   * the choice does; Run does that in continueRun.
+   */
+  pickCell(): Promise<Pos> {
+    return new Promise((resolve) => {
+      this.root.eventMode = "static";
+      this.root.hitArea = new Rectangle(0, 0, BOARD_PX, BOARD_PX);
+      const cellAt = (e: FederatedPointerEvent): Pos | null => {
+        const p = e.getLocalPosition(this.root);
+        const x = Math.floor(p.x / CELL_PX);
+        const y = Math.floor(p.y / CELL_PX);
+        return x >= 0 && y >= 0 && x < BOARD_CELLS && y < BOARD_CELLS ? { x, y } : null;
+      };
+      const onMove = (e: FederatedPointerEvent): void => this.setCross(cellAt(e));
+      const onTap = (e: FederatedPointerEvent): void => {
+        const cell = cellAt(e);
+        if (!cell) return;
+        this.root.off("pointermove", onMove);
+        this.root.off("pointertap", onTap);
+        this.root.eventMode = "none";
+        this.setCross(null);
+        resolve(cell);
+      };
+      this.root.on("pointermove", onMove);
+      this.root.on("pointertap", onTap);
+    });
+  }
+
+  private setCross(cell: Pos | null): void {
+    for (const s of this.ghostSprites) s.destroy();
+    this.ghostSprites = [];
+    if (!cell) return;
+    const put = (x: number, y: number): void => {
+      const sp = new Sprite(this.textures.ghost);
+      sp.roundPixels = true;
+      sp.position.set(x * CELL_PX, y * CELL_PX);
+      this.ghostLayer.addChild(sp);
+      this.ghostSprites.push(sp);
+    };
+    for (let x = 0; x < BOARD_CELLS; x++) put(x, cell.y);
+    for (let y = 0; y < BOARD_CELLS; y++) if (y !== cell.y) put(cell.x, y);
   }
 
   getSpriteAtCell(x: number, y: number): Sprite | undefined {

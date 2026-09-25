@@ -1,22 +1,27 @@
-import { Container, FederatedPointerEvent, Rectangle } from "pixi.js";
-import { LOGICAL_H, LOGICAL_W } from "../layout.js";
+import { Container, type FederatedPointerEvent, Rectangle } from "pixi.js";
 import type { Pos } from "../../engine/grid.js";
 import type { Shape } from "../../engine/shapes.js";
-import { playLift, playReturnToSlot, replayEvents } from "../anim/index.js";
-import { DRAG_LIFT_PX } from "../layout.js";
-import { reduce } from "../view-model.js";
+import { playLift, playReturnToSlot } from "../anim/index.js";
+import { DRAG_LIFT_PX, LOGICAL_H, LOGICAL_W } from "../layout.js";
 import type { GameContext } from "../scene/types.js";
 
+interface ActiveDrag {
+  handIndex: number;
+  shape: Shape;
+  graphic: Container;
+  pointerId: number;
+  lastOrigin: Pos | null;
+  legal: boolean;
+}
+
+/**
+ * Lift a shape from the tray, follow the pointer 32 px above the finger, show the
+ * ghost where it would land, and hand a legal drop to the session. Legality is
+ * always run.canPlace(); this file decides nothing.
+ */
 export class DragController {
   private readonly dragLayer = new Container();
-  private active: {
-    handIndex: number;
-    shape: Shape;
-    graphic: Container;
-    pointerId: number;
-    lastOrigin: Pos | null;
-    legal: boolean;
-  } | null = null;
+  private active: ActiveDrag | null = null;
 
   constructor(private readonly ctx: GameContext) {
     ctx.app.stage.addChild(this.dragLayer);
@@ -29,7 +34,9 @@ export class DragController {
 
   bindHandPick(handIndex: number, e: FederatedPointerEvent): void {
     if (this.ctx.inputLocked || this.active) return;
-    const id = this.ctx.run.state().hand[handIndex];
+    const run = this.ctx.session.run;
+    if (run.state().phase !== "playing") return;
+    const id = run.state().hand[handIndex];
     if (!id) return;
     const shape = this.ctx.shapes.get(id);
     const graphic = this.ctx.hand.makeDragShape(shape, 1);
@@ -43,30 +50,25 @@ export class DragController {
   private onMove(e: FederatedPointerEvent): void {
     if (!this.active || this.ctx.inputLocked) return;
     if (this.active.pointerId >= 0 && e.pointerId !== this.active.pointerId) return;
-    this.active.pointerId = e.pointerId;
     const stage = this.toStage(e.global);
     this.active.graphic.position.set(Math.round(stage.x), Math.round(stage.y - DRAG_LIFT_PX));
     const origin = this.ctx.board.originFromStage(stage.x, stage.y - DRAG_LIFT_PX);
-    const legal = this.ctx.run.canPlace(this.active.handIndex, origin);
+    const legal = this.ctx.session.run.canPlace(this.active.handIndex, origin);
     this.active.lastOrigin = origin;
     this.active.legal = legal;
     this.ctx.board.setGhost(legal ? this.active.shape : null, legal ? origin : null);
   }
 
   private async onUp(e: FederatedPointerEvent): Promise<void> {
-    if (!this.active || this.ctx.inputLocked) return;
+    if (!this.active) return;
     if (this.active.pointerId >= 0 && e.pointerId !== this.active.pointerId) return;
     const { handIndex, graphic, lastOrigin, legal } = this.active;
     this.active = null;
     this.ctx.board.setGhost(null, null);
 
-    if (legal && lastOrigin) {
-      this.ctx.setInputLocked(true);
-      const events = this.ctx.run.place(handIndex, lastOrigin, { continueAvailable: false });
-      const viewState = reduce(this.ctx.run.state(), events);
+    if (legal && lastOrigin && !this.ctx.inputLocked) {
       graphic.destroy();
-      await replayEvents(this.ctx, events, viewState);
-      this.ctx.setInputLocked(false);
+      await this.ctx.session.drop(handIndex, lastOrigin);
       return;
     }
 
