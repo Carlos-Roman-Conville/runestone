@@ -1,0 +1,8 @@
+{
+  "_schema": "Bag rules the tuner sweeps (HANDOFF R1, R2, R17). mercy: whether the hidden redraw is on. mercyScope: \"draw\" (R1: redraw a fresh hand of three when none fits) or \"hand\" (R17: reserved, not implemented at launch). killThreshold: placement count after which the mercy chance starts falling. killHalfLife: placements over which the mercy chance halves after the threshold; chance = 0.5 ^ ((placements - killThreshold) / killHalfLife), clamped to 1 before the threshold. weights: optional per-shape-id overrides of data/shapes.json weights, so the tuner can sweep without editing the shape file. Every number is an UNVERIFIED starting value; the bot settles them (R5).",
+  "mercy": true,
+  "mercyScope": "draw",
+  "killThreshold": 150,
+  "killHalfLife": 100,
+  "weights": {}
+}

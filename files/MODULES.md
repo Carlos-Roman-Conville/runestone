@@ -49,10 +49,10 @@ Each card: **Purpose · Public API · Reads · Writes · Must not · Invariants 
 
 ### Bag — `engine/bag.ts`
 - **Purpose** Draw a hand of three shapes by weight, with the mercy and kill rules.
-- **Public API** `drawHand(shapes, grid, rng, runStats) → Shape[3]`; `BagConfig` (weights override, mercy on/off, kill threshold and curve) loaded from JSON so the tuner can sweep it.
+- **Public API** `drawHand(shapes, grid, rng, config, runStats) → HandDraw` where `HandDraw = { shapes: [Shape, Shape, Shape], mercy: boolean }` (Run copies `mercy` into `HandDrawn`); `loadBagConfig(json) → BagConfig` from `data/bag.json` (mercy on/off, `mercyScope` reserved per R17, kill threshold and half-life, per-id weight overrides); `mercyChance(placements, config)` exposes the R2 curve for the tuner.
 - **Reads** `ShapeSet`, `Grid` (only through `Placement.fits`), `Rng` streams `Bag` and `Mercy`, run placement count. **Writes** stream positions only.
 - **Must not** mutate the grid; touch the `BotTieBreak` stream; know about scoring.
-- **Invariants** with mercy off the draw is a pure weighted sample from `Bag`; the mercy redraw uses only `Mercy` so the `Bag` sequence for a seed never depends on grid state; after the kill threshold the mercy probability follows the configured curve.
+- **Invariants** with mercy off the draw is a pure weighted sample from `Bag`; the mercy roll and redraw use only `Mercy` so the `Bag` sequence for a seed never depends on grid state; after the kill threshold the mercy probability follows `0.5 ^ ((placements − threshold) / halfLife)`; if nothing fits anywhere the original draw is returned with `mercy: false` and Run detects game over.
 - **Spec** HANDOFF Core mechanic 2 and 6; R1, R2.
 - **Tests** weights honored over 10k draws (chi-square-ish tolerance), mercy fires only when no drawn shape fits, mercy never fires when off, `Bag` positions identical with and without mercy for the same seed, kill curve values at threshold ±1.
 - **Context** this card, R1, R2, Placement's `fits` signature.
