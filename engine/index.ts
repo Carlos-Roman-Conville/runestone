@@ -4,3 +4,4 @@ export { Grid } from "./grid.js";
 export type { Pos } from "./grid.js";
 export { loadShapes, ShapeSet, ShapeDataError, REQUIRED_SILHOUETTES } from "./shapes.js";
 export type { Shape } from "./shapes.js";
+export { fits, place, anyFit, allOrigins } from "./placement.js";
