@@ -7,5 +7,7 @@ export type { Shape } from "./shapes.js";
 export { fits, place, anyFit, allOrigins } from "./placement.js";
 export { clearLines, DEFAULT_CLEAR_MODE } from "./clearing.js";
 export type { ClearMode, ClearResult } from "./clearing.js";
+export { loadScoreTable, scorePlacement, ScoreDataError } from "./scoring.js";
+export type { ScoreTable, PlacementScore } from "./scoring.js";
 export { drawHand, loadBagConfig, mercyChance, effectiveWeight, BagDataError, HAND_SIZE } from "./bag.js";
 export type { BagConfig, RunStats, HandDraw } from "./bag.js";
