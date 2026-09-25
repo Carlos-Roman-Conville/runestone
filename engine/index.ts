@@ -12,5 +12,5 @@ export type { ScoreTable, PlacementScore } from "./scoring.js";
 export { drawHand, loadBagConfig, mercyChance, effectiveWeight, BagDataError, HAND_SIZE } from "./bag.js";
 export type { BagConfig, RunStats, HandDraw } from "./bag.js";
 export { Run, runConfig } from "./run.js";
-export type { RunConfig, RunState, RunSave, RunPhase, PlaceOptions } from "./run.js";
+export type { RunConfig, RunState, RunSave, RunPhase, PlaceOptions, PlacementPreview } from "./run.js";
 export type * from "./events.js";

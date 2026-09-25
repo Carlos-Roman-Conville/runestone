@@ -8,9 +8,18 @@
     "noImplicitOverride": true,
     "exactOptionalPropertyTypes": true,
     "noEmit": true,
-    "types": [],
+    "types": [
+      "node"
+    ],
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["engine", "engine.tests", "ops", "tools", "game", "scripts"]
+  "include": [
+    "engine",
+    "engine.tests",
+    "ops",
+    "tools",
+    "game",
+    "scripts"
+  ]
 }

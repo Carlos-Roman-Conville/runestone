@@ -35,6 +35,17 @@ export interface PlaceOptions {
   readonly continueAvailable: boolean;
 }
 
+/** Result of Run.preview: what one legal placement would do. */
+export interface PlacementPreview {
+  readonly points: number;
+  readonly linesCleared: number;
+  readonly streakAfter: number;
+  /** Filled cells on the grid after placing and clearing. */
+  readonly filledAfter: number;
+  /** The grid after placing and clearing, as rows of '.' and '#'. */
+  readonly gridAfter: readonly string[];
+}
+
 /** Read-only snapshot for the view. Arrays and the grid are copies. */
 export interface RunState {
   readonly seed: number;
@@ -124,6 +135,21 @@ export class Run {
     if (this.phase !== "playing") return false;
     const shape = this.hand[handIndex];
     return shape !== null && shape !== undefined && fits(shape, origin, this.grid);
+  }
+
+  /**
+   * What a legal placement would score, without doing it. For the bot and for any UI
+   * hint. Null when the placement is illegal. Never mutates; the grid is cloned.
+   */
+  preview(handIndex: number, origin: Pos): PlacementPreview | null {
+    if (!this.canPlace(handIndex, origin)) return null;
+    const shape = this.hand[handIndex] as Shape;
+    const grid = this.grid.clone();
+    const cells = place(shape, origin, grid);
+    const cleared = clearLines(grid, this.config.mode);
+    const linesCleared = cleared.rows.length + cleared.cols.length;
+    const scored = scorePlacement(cells.length, linesCleared, this.streak, this.config.scoring);
+    return { points: scored.points, linesCleared, streakAfter: scored.streakAfter, filledAfter: grid.count(), gridAfter: grid.toRows() };
   }
 
   /** True only while a ContinueOffered is pending and no continue has been used (R3). */

@@ -269,6 +269,24 @@ describe("Run copies", () => {
     expect(() => Run.deserialize(shapes, config, { ...save, hand: ["nope", null, null] })).toThrow(/unknown shape id/);
   });
 
+  it("preview reports what a placement would do without doing it", () => {
+    const rows = ["#######.", ...Array(7).fill(EMPTY_ROW)];
+    const run = craft({ rows, hand: ["single", "square2", "single"], seed: 1 });
+    const before = run.serialize();
+    const p = run.preview(0, { x: 7, y: 0 })!;
+    expect(p.linesCleared).toBe(1);
+    expect(p.streakAfter).toBe(1);
+    expect(p.filledAfter).toBe(0);
+    expect(p.gridAfter).toEqual(Array(8).fill(EMPTY_ROW));
+    expect(p.points).toBe(config.scoring.perCell + config.scoring.perLine * config.scoring.comboMultiplier[1]! * config.scoring.streakMultiplier[0]!);
+    expect(run.preview(1, { x: 0, y: 4 })).toMatchObject({ points: 4 * config.scoring.perCell, linesCleared: 0, filledAfter: 11 });
+    expect(run.preview(1, { x: 7, y: 0 })).toBeNull();
+    expect(run.preview(5, { x: 0, y: 0 })).toBeNull();
+    expect(run.serialize()).toEqual(before);
+    const real = run.place(0, { x: 7, y: 0 }, NO_AD);
+    expect(real[2]).toMatchObject({ points: p.points, linesCleared: 1 });
+  });
+
   it("events() and state() return copies", () => {
     const run = Run.start(shapes, config, 1);
     const ev = run.events() as unknown[];
