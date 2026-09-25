@@ -1,0 +1,7 @@
+{
+  "_schema": "Score for one placement = cellsPlaced * perCell + linesCleared * perLine * comboMultiplier[linesCleared] * streakMultiplier[min(streak, last)]. streak = consecutive placements that each cleared at least one line, counted before this placement; it resets to 0 on a placement that clears nothing (HANDOFF R9, R15). comboMultiplier is indexed by lines cleared on this placement (index 0 unused). streakMultiplier is indexed by streak and the last entry repeats for longer streaks. Every number is an UNVERIFIED starting value; the bot and live data tune them.",
+  "perCell": 1,
+  "perLine": 10,
+  "comboMultiplier": [0, 1, 2, 3, 4, 6, 8],
+  "streakMultiplier": [1, 1, 1.5, 2, 2.5, 3]
+}

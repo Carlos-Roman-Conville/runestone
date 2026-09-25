@@ -8,7 +8,7 @@ The living design doc is *Block Puzzle Game* (Claude Docs). This file is the fro
 
 ## State of play (2026-09-25)
 
-Scaffold only. Rng and Grid built with tests; CI runs the layer guard, typecheck and tests on a machine with no renderer. Next: step 1 (export pipeline and test ad) in parallel with Shapes → Bag → Placement.
+Scaffold plus the ops layer. Rng and Grid built with tests; `ops/` has the four port interfaces (ads, iap, analytics, save) with scriptable fakes and tests; `data/scoring.json` holds UNVERIFIED starting score values. CI runs the layer guard, typecheck and tests on a machine with no renderer. Next: step 1 (`STEP1_EXPORT.md`) in parallel with Shapes → Bag → Placement.
 
 ## Document map
 
@@ -18,6 +18,8 @@ Scaffold only. Rng and Grid built with tests; CI runs the layer guard, typecheck
 | `MODULES.md` | one contract card per module, dependency order | **module boundaries** |
 | `EVENTS.md` | event-log vocabulary | **event names and fields** |
 | `GLOSSARY.md` | the words used precisely | read when a word looks ambiguous |
+| `STEP1_EXPORT.md` | the Composer recipe for step 1: Vite + PixiJS scene, Capacitor Android, AdMob test ad | step 1 only |
+| `DESIGN.md` | markdown export of the living design doc; the reasoning behind every ruling | context; HANDOFF wins on rules |
 
 ## Layers — three, no leakage
 
@@ -26,7 +28,7 @@ data/          JSON. shapes.json (bag with weights), palette.json, daily_seeds.j
 engine/        Pure TypeScript. Rules, state, event log. Imports nothing outside engine/.
 engine.tests/  Vitest. One test per rule. Runs with no renderer.
 tools/sim/     Bot + bag tuner over data/*.json. Calls engine only.
-ops/           Ads, IAP, analytics, save: an interface each, a fake each, a real implementation each. The only place an SDK is imported.
+ops/           Ads, IAP, analytics, save: an interface each (ops/*.ts), a fake each (ops/fake/), a real implementation each (ops/real/, from step 1). The only place an SDK is imported.
 game/          PixiJS view + Capacitor shell. Reads the event log. Contains zero rules.
 ```
 
@@ -52,7 +54,7 @@ Nothing in a later step starts until the earlier gate passes.
 
 | Step | Work | Owner | Gate |
 |---|---|---|---|
-| 1 | Blank PixiJS scene, Capacitor Android export, web build, test rewarded ad (AdMob test unit) | Claude Code scaffold, Composer plumbing | a build runs on Android and web and shows a test ad |
+| 1 | Blank PixiJS scene, Capacitor Android export, web build, test rewarded ad (AdMob test unit). Recipe: `STEP1_EXPORT.md` | Composer from the recipe, Rex on device | a build runs on Android and web and shows a test ad |
 | 2 | This scaffold: docs, Cursor rules, CI, Rng, Grid | Claude Code | **DONE 2026-09-25** |
 | 3 | Shapes → Bag → Placement → Clearing → Scoring → Run, headless | Claude Code, one module per session | a scripted run plays to game over in a test under a fixed seed |
 | 4 | Bot and bag tuning | Claude Code | run-length distribution inside the target band (R5) |
@@ -98,6 +100,8 @@ Rows are added before the code that relies on them. Tags: **SETTLED** (decided b
 | R11 | Glyphs | Version two. Version one ships plain stone tiles; shapes are read by outline. | product decision (Rex, 2026-09-25) | `game/` |
 | R12 | Stack | TypeScript, PixiJS, Vitest, Capacitor; web build for portals; Android first, iOS after revenue. | product decision (Rex, 2026-09-25) | repo |
 | R13 | Art | Pixel art, one locked palette, one 24 px stone tile in three states (resting, lit, ghost), whole-number scaling, nearest-neighbor, no mixing with smooth assets. | product decision (Rex, 2026-09-25) | `game/` |
+| R15 | Score table | `data/scoring.json`: per-cell, per-line, combo multiplier by lines cleared, streak multiplier by streak length. All values UNVERIFIED starting points; the bot and live data tune them. Changing a number is a JSON edit. | UNVERIFIED | `engine/scoring.ts` |
+| R16 | Ops ports | Four interfaces in `ops/` (ads, iap, analytics, save), one fake each in `ops/fake/`, real implementations in `ops/real/` (step 1 and step 7). The view receives an `Ops` object at startup and never constructs a port itself. Analytics sends nothing until consent is granted. | SETTLED | `ops/` |
 | R14 | Name | `runestone` is a placeholder; renaming is one pass over `package.json`, this file and the Capacitor app id. | product decision (reserved) | repo |
 
 If Claude Code hits a case not on this list, add a row with a best-guess ruling **before** implementing, and flag it in the commit message.
