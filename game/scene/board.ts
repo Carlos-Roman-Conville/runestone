@@ -85,4 +85,11 @@ export class BoardView {
   getSpriteAtCell(x: number, y: number): Sprite | undefined {
     return this.cellSprites.get(`${x},${y}`);
   }
+
+  setCellsState(cells: readonly Pos[], state: TileState): void {
+    for (const c of cells) {
+      const sp = this.cellSprites.get(`${c.x},${c.y}`);
+      if (sp) sp.texture = this.textures[state];
+    }
+  }
 }

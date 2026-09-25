@@ -3,7 +3,7 @@ import type { Pos } from "../../engine/grid.js";
 import type { Shape, ShapeSet } from "../../engine/shapes.js";
 import { CELL_PX, HAND_X0, HAND_Y, SLOT_GAP, SLOT_W } from "../layout.js";
 
-export type HandPickHandler = (handIndex: number, global: { x: number; y: number }) => void;
+export type HandPickHandler = (handIndex: number, e: FederatedPointerEvent) => void;
 
 export class HandView {
   readonly root = new Container();
@@ -25,7 +25,7 @@ export class HandView {
       const idx = i;
       slot.on("pointerdown", (e: FederatedPointerEvent) => {
         if (!this.handIds[idx]) return;
-        this.onPick(idx, { x: e.global.x, y: e.global.y });
+        this.onPick(idx, e);
       });
       this.root.addChild(slot);
       this.slots.push(slot);
