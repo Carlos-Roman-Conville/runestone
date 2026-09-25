@@ -7,3 +7,8 @@ android/
 ios/
 .env
 .env.*
+# If android/ is ever committed: no keys or local SDK paths (STEP1_EXPORT §5)
+local.properties
+**/*.keystore
+**/*.jks
+**/google-services.json
