@@ -2,11 +2,11 @@
 
 **Precondition:** step 1 is DONE in `files/HANDOFF.md` (Vite + PixiJS scene in `game/`, Capacitor Android build, `ops/real/admob.ts`, an `Ops` object built in `game/main.ts`). If it is not, stop; this prompt builds on that scaffold.
 
-Paste everything below the line into a fresh Composer chat with `game/main.ts`, `engine/index.ts`, `engine/run.ts`, `engine/events.ts`, `files/EVENTS.md`, `files/MODULES.md` (Run card), `ops/index.ts` and `.cursor/rules/30-game.mdc` attached. One feature per chat: this is the whole playable loop, so expect it to take a few sessions; the file list below is the split.
+Paste everything below the line into a fresh Composer chat with `game/main.ts`, `engine/index.ts`, `engine/run.ts`, `engine/events.ts`, `files/EVENTS.md`, `files/MODULES.md` (Run card), `ops/index.ts`, `.cursor/rules/30-game.mdc` and the three `data/*.json` files attached. One feature per chat: this is the whole playable loop, so expect it to take a few sessions; the file list below is the split.
 
 ---
 
-You are building **step 5** of the Runestone repo: a playable view over the finished engine. Read `AGENTS.md`, then `.cursor/rules/30-game.mdc`, then the Run card in `files/MODULES.md`, then `files/EVENTS.md`, then this prompt. The engine is complete and tested (141 tests); you are wiring a screen to it.
+You are building **step 5** of the Runestone repo: a playable view over the finished engine. Read `AGENTS.md`, then `.cursor/rules/30-game.mdc`, then the Run card in `files/MODULES.md`, then `files/EVENTS.md`, then this prompt. The engine is complete and tested (trust `npm test` for the count); you are wiring a screen to it.
 
 **The one rule that matters: the view contains zero game rules.** It never decides whether a drop is legal, what clears, or what scores. It asks `run.canPlace()` for the ghost, calls `run.place()` on drop, and animates the events that come back. If you find yourself writing `if (row is full)` or computing points, stop: that belongs in `engine/` and is already there.
 
@@ -60,7 +60,7 @@ export interface ViewState {
   readonly hand: readonly (string | null)[]; // ids
   readonly score: number;
   readonly streak: number;
-  readonly phase: "playing" | "ended";
+  readonly phase: "playing" | "ended";       // RunState.phase has a third value, continue_offered; it cannot occur in step 5, so map everything but ended to playing
   readonly lastPlacement: { cells: Pos[]; cleared: Pos[]; rows: number[]; cols: number[]; points: number; linesCleared: number; combo: number } | null;
 }
 export function reduce(state: RunState, events: readonly GameEvent[]): ViewState;
