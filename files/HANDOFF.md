@@ -46,7 +46,7 @@ Test for the line being in the right place: **adding a shape is a JSON edit with
 
 **The shape bag is the design.** Pure random draws kill players to bad luck and they quit. The bag is weighted, has a mercy rule and a kill rule (R1, R2), and the bot tunes the numbers.
 
-**Shape set.** 25 bag entries over 11 silhouettes (1010!'s classic 19 plus T, S and Z, as in Block Blast): single; 2, 3, 4, 5 in a line (each both ways); 2x2; 3x3; small L (4 rotations); large L (4 rotations); T (4 rotations); S and Z. Rotations are separate bag entries since the player cannot rotate. Data: `data/shapes.json`.
+**Shape set.** 25 bag entries over 11 silhouettes (1010!'s classic 19 plus T, S and Z, as in Block Blast): single; 2, 3, 4, 5 in a line (each both ways); 2x2; 3x3; small L (4 rotations); large L (4 rotations); T (4 rotations); S and Z. S and Z are mirror images and share the silhouette `S`, which is what makes the count 11. Rotations are separate bag entries since the player cannot rotate. Data: `data/shapes.json`.
 
 ## Build order with gates
 
@@ -103,6 +103,7 @@ Rows are added before the code that relies on them. Tags: **SETTLED** (decided b
 | R15 | Score table | `data/scoring.json`: per-cell, per-line, combo multiplier by lines cleared, streak multiplier by streak length. All values UNVERIFIED starting points; the bot and live data tune them. Changing a number is a JSON edit. | UNVERIFIED | `engine/scoring.ts` |
 | R16 | Ops ports | Four interfaces in `ops/` (ads, iap, analytics, save), one fake each in `ops/fake/`, real implementations in `ops/real/` (step 1 and step 7). The view receives an `Ops` object at startup and never constructs a port itself. Analytics sends nothing until consent is granted. | SETTLED | `ops/` |
 | R14 | Name | `runestone` is a placeholder; renaming is one pass over `package.json`, this file and the Capacitor app id. | product decision (reserved) | repo |
+| R17 | Mid-hand mercy | R1 only guards a fresh draw of three. Launch rule: mercy also does not fire mid-hand; a hand whose remaining shapes no longer fit ends the run (or offers the continue, R3). `BagConfig.mercyScope: "draw" \| "hand"` is reserved so the bot can test the alternative (redraw the remaining shapes when none fits), since most deaths in this genre are mid-hand and R5's 5th-percentile target may need it. | UNVERIFIED | `engine/bag.ts`, `engine/run.ts` |
 
 If Claude Code hits a case not on this list, add a row with a best-guess ruling **before** implementing, and flag it in the commit message.
 

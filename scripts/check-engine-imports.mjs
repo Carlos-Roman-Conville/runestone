@@ -2,8 +2,9 @@
 // Fails CI if any engine file imports pixi, capacitor, game/, ops/, tools/ or a node_module.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const engineDir = join(root, "engine");
 const forbidden = [/^pixi/, /^@capacitor/, /^@pixi/, /\/game\//, /^\.\.\/game/, /^\.\.\/ops/, /^\.\.\/tools/];
 let failures = 0;

@@ -89,8 +89,8 @@ Each card: **Purpose · Public API · Reads · Writes · Must not · Invariants 
 
 ### Run — `engine/run.ts`
 - **Purpose** The turn: validate placement, place, clear, score, redraw when the hand is empty, detect game over, offer and apply the one continue.
-- **Public API** `Run.start(shapes, config, seed) → Run`; `run.place(handIndex, origin) → Event[]`; `run.canContinue()`, `run.continueRun(row, col) → Event[]`; `run.state()` (read-only view); `run.events()` (full log); `run.clone()`, `serialize()/deserialize()`.
-- **Reads** everything above. **Writes** its own state and the event log.
+- **Public API** `Run.start(shapes, config, seed) → Run`; `run.place(handIndex, origin, { continueAvailable }) → Event[]`; `run.canContinue()`, `run.continueRun(row, col) → Event[]`; `run.state()` (read-only view); `run.events()` (full log); `run.clone()`, `serialize()/deserialize()`.
+- **Reads** everything above, plus `continueAvailable: boolean` passed by the caller on each `place()` (the view asks `ops/ads` and passes the answer in; the engine never imports `ops/`). **Writes** its own state and the event log.
 - **Must not** be called by the view for anything the view could compute itself... except that the view may compute nothing: the view calls `fits` via `run.canPlace(handIndex, origin)` and animates events.
 - **Invariants** every state change emits exactly one event (EVENTS.md); a hand is redrawn only when all three are placed (R10); game over only when no shape in hand fits anywhere; continue at most once per run (R3); same seed + same inputs → identical event log.
 - **Spec** HANDOFF Core mechanic 1–7; R3, R10.

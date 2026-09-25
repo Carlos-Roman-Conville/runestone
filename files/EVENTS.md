@@ -15,7 +15,7 @@ All events carry `{ type, turn }` where `turn` is the placement count so far. Po
 | `StreakChanged` | `from`, `to` | Scoring via Run | only when the streak value changed |
 | `HandEmpty` | — | Run | the third shape of a hand was placed; a `HandDrawn` follows |
 | `NoFitDetected` | `hand: id[]` | Run | no shape in hand fits anywhere |
-| `ContinueOffered` | — | Run | after `NoFitDetected` when a continue is still available and ads report available |
+| `ContinueOffered` | — | Run | after `NoFitDetected` when a continue is still unused this run and the caller passed `continueAvailable: true` to `place()` (the view gets that from `ops/ads`; the engine never asks ads itself) |
 | `ContinueUsed` | `row`, `col`, `cells: Pos[]` | Run | `continueRun()` applied |
 | `RunEnded` | `score`, `placements`, `endedBy: "no_fit" \| "declined_continue"` | Run | terminal; nothing follows |
 
