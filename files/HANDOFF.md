@@ -8,7 +8,20 @@ The living design doc is *Block Puzzle Game* (Claude Docs). This file is the fro
 
 ## State of play (2026-09-25)
 
-Scaffold plus the ops layer. Rng and Grid built with tests; `ops/` has the four port interfaces (ads, iap, analytics, save) with scriptable fakes and tests; `data/scoring.json` holds UNVERIFIED starting score values. CI runs the layer guard, typecheck and tests on a machine with no renderer. Step 3 is done (2026-09-25): Shapes, Placement, Bag, Clearing, Scoring and Run are in `engine/` with 122 tests, and `engine.tests/golden/run_seed_1.json` is a scripted run to game over under seed 1. Step 4 is done: the first sweep showed the band was unreachable with draw-time mercy (greedy median 23, p5 11; deaths are mid-hand), Rex chose R18 (solvable dealing), and the re-sweep put the line-heavy weights in band at every kill setting. Adopted: `data/shapes.json` line-heavy weights, `data/bag.json` mercyScope solvable, kill 80/50. Greedy bot: median 50, p5 17, p95 129, max 165, kill rule engaged on 24% of runs. Careful bot: median 55. Step 1 and step 5 are committed (Composer) and reviewed; the view replay order was fixed on review. Step 6 is built: `engine/daily.ts`, `engine/progress.ts`, a Pixi-free `game/session.ts` that owns the run lifecycle (resume, daily, the R3 continue through `ops.ads`, save through `ops.save`, analytics), `ops/real/localSave.ts`, and the HUD prompts. Rows 1, 5 and 6 wait on device gates. Next: step 7 (ads, remove-ads, analytics, consent, privacy policy).
+Scaffold plus the ops layer. Rng and Grid built with tests; `ops/` has the four port interfaces (ads, iap, analytics, save) with scriptable fakes and tests; `data/scoring.json` holds UNVERIFIED starting score values. CI runs the layer guard, typecheck and tests on a machine with no renderer. Step 3 is done (2026-09-25): Shapes, Placement, Bag, Clearing, Scoring and Run are in `engine/` with 122 tests, and `engine.tests/golden/run_seed_1.json` is a scripted run to game over under seed 1. Step 4 is done: the first sweep showed the band was unreachable with draw-time mercy (greedy median 23, p5 11; deaths are mid-hand), Rex chose R18 (solvable dealing), and the re-sweep put the line-heavy weights in band at every kill setting. Adopted: `data/shapes.json` line-heavy weights, `data/bag.json` mercyScope solvable, kill 80/50. Greedy bot: median 50, p5 17, p95 129, max 165, kill rule engaged on 24% of runs. Careful bot: median 55. Step 1 and step 5 are committed (Composer) and reviewed; the view replay order was fixed on review. Step 6 is built: `engine/daily.ts`, `engine/progress.ts`, a Pixi-free `game/session.ts` that owns the run lifecycle (resume, daily, the R3 continue through `ops.ads`, save through `ops.save`, analytics), `ops/real/localSave.ts`, and the HUD prompts. Rows 1, 5 and 6 wait on device gates. Step 7 is on hold until cash flow (see "On hold"). Next: gameplay feel on the view and engine.
+
+## On hold until cash flow (Rex, 2026-09-25)
+
+Step 7 needs accounts that cost money or time. Rex paused them; nothing below is started until Rex says cash flow is back. Meanwhile the work is gameplay feel, the engine, and anything testable with the `ops/` fakes.
+
+- [ ] Google Play developer account: one-time US$25; identity verification; a new personal account must run a closed test with 12 testers for 14 continuous days before production access. Open it well before step 9 and start collecting testers.
+- [ ] AdMob account: the app, one rewarded unit, one interstitial unit, the app id. Real ids go in a gitignored env file, never the repo.
+- [ ] Privacy policy at a public URL (GitHub Pages is enough; Claude Code drafts the text).
+- [ ] Analytics backend decision (recommended: Firebase Analytics; needs a Firebase project and a gitignored config file).
+- [ ] Play Console in-app product `remove_ads`.
+- [ ] Portal account (Poki or CrazyGames) and its SDK key, for the web build.
+
+What can be built before any of that exists: the R4 interstitial cap and between-runs call, the remove-ads flow and store button through the IAP port, the consent gate, and the step 7 recipe for Composer. All against fakes.
 
 ## Document map
 
@@ -60,7 +73,7 @@ Nothing in a later step starts until the earlier gate passes.
 | 4 | Bot and bag tuning | Claude Code | **DONE 2026-09-25**: with R18 solvable dealing and the line-heavy weights, the greedy bot sits inside the R5 band (`npm run sim`). |
 | 5 | View: grid, drag and snap, clear animation, hand, score | Composer wiring, Claude Code review | a human plays a full run on device; recording verified by opening frames |
 | 6 | Daily, Progress and save, continue via rewarded ad | Claude Code engine, Composer screens | **Built 2026-09-25** (Claude Code, engine and screens): restart survival and same-day same-board are asserted in `game/session.test.ts`, and the continue, resume and daily were exercised in the browser. Device gate (two phones, one day) is Rex's. |
-| 7 | Ads, remove-ads purchase, analytics, consent, privacy policy | Composer plumbing from recipe, Rex accounts | real ads serve, consent passes, purchase completes in sandbox |
+| 7 | Ads, remove-ads purchase, analytics, consent, privacy policy | Composer plumbing from recipe, Rex accounts | real ads serve, consent passes, purchase completes in sandbox. **ON HOLD** until cash flow; see "On hold" above. |
 | 8 | Pixel art pass, sound, store assets, listing | Rex | listing approved |
 | 9 | Soft launch on one portal and Android | Rex | analytics arriving |
 | 10 | Live loop: retune the bag from run data; decide on box mode and level mode | all | monthly |
