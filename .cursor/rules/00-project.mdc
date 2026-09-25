@@ -1,0 +1,9 @@
+---
+description: Project-wide rules for Runestone (always on)
+alwaysApply: true
+---
+- Read `AGENTS.md` first, then `files/HANDOFF.md`. Rules and scope → HANDOFF; module boundaries → MODULES; events → EVENTS.
+- Build **one module per session** from `files/MODULES.md`. Load only that module's card, the HANDOFF sections it names, and `files/GLOSSARY.md`.
+- No rule that isn't in HANDOFF's Core mechanic or rulings table. If silent: add a rulings row, mark it `// UNVERIFIED — see HANDOFF Rn`, continue.
+- Adding or reweighting a shape is a JSON edit (`data/shapes.json`). If it needs a `.ts` change, stop and say why.
+- Pins: Node 22 · TypeScript 5.6 · Vitest 2 · PixiJS 8 · Capacitor 6. `npm run check` must pass before any commit.

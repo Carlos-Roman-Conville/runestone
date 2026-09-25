@@ -1,0 +1,11 @@
+---
+description: Engine rules (engine/**)
+globs: engine/**
+alwaysApply: false
+---
+- `engine/` imports nothing outside `engine/`: no `pixi.js`, no `@capacitor/*`, no `game/`, no `ops/`, no packages. `npm run check:layers` enforces it.
+- No `Math.random`. Every draw uses a named stream from `engine/rng.ts`.
+- Every state change emits exactly one event from `files/EVENTS.md`.
+- State is copied with `clone()` only. Never share a `Uint8Array` or a `Stream` between two states.
+- Pure functions where the card says pure (Scoring, Placement.fits, Clearing's line finding).
+- Match the contract card's public API exactly; if it needs to change, change the card in the same commit and say why.

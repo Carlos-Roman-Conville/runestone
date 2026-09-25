@@ -1,0 +1,9 @@
+---
+description: View rules (game/**)
+globs: game/**
+alwaysApply: false
+---
+- The view contains zero rules. It calls `Run` and animates the event log. To know whether a drop is legal it calls `run.canPlace()`.
+- Pixel art: nearest-neighbor filtering, whole-number scaling, one 24 px stone tile in three states (resting, lit, ghost). Never mix pixel and smooth assets.
+- Ads, purchases, analytics and save are called only through `ops/` interfaces; the view never imports an SDK.
+- Feel budget (HANDOFF): six animations, six sounds. Add nothing outside it without a rulings row.

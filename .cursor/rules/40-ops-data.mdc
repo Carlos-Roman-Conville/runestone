@@ -1,0 +1,8 @@
+---
+description: Ops and data rules (ops/**, data/**)
+globs: ops/**,data/**
+alwaysApply: false
+---
+- `ops/`: one interface per concern (ads, iap, analytics, save), one fake in `ops/fake/`, one real implementation. The only place an SDK is imported.
+- No keys, ids or secrets in the repo. Read them from environment or a gitignored config.
+- `data/*.json` never contains logic. Every file starts with a `_schema` string describing its fields. Changing a number is the intended way to tune the game.
