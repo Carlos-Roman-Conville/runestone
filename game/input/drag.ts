@@ -1,23 +1,31 @@
 import { Container, type FederatedPointerEvent, Rectangle } from "pixi.js";
 import type { Pos } from "../../engine/grid.js";
 import type { Shape } from "../../engine/shapes.js";
-import { playLift, playReturnToSlot } from "../anim/index.js";
-import { DRAG_LIFT_PX, LOGICAL_H, LOGICAL_W } from "../layout.js";
+import { playLift, playReturnToSlot, playSnapSlide } from "../anim/index.js";
+import { BOARD_X, BOARD_Y, CELL_PX, DRAG_LIFT_PX, LOGICAL_H, LOGICAL_W } from "../layout.js";
 import type { GameContext } from "../scene/types.js";
 
 interface ActiveDrag {
   handIndex: number;
   shape: Shape;
+  /** Shape size in cells. */
+  w: number;
+  h: number;
   graphic: Container;
   pointerId: number;
+  /** Pointer in stage units, updated every move. */
+  pointer: { x: number; y: number };
+  /** 0 at pick-up, 1 once fully lifted; the lift tween drives it. */
+  lift: number;
   lastOrigin: Pos | null;
   legal: boolean;
 }
 
 /**
- * Lift a shape from the tray, follow the pointer 32 px above the finger, show the
- * ghost where it would land, and hand a legal drop to the session. Legality is
- * always run.canPlace(); this file decides nothing.
+ * Lift a shape from the tray, carry it centered above the finger, show the ghost and
+ * the lines it would complete, and hand a legal drop to the session after sliding the
+ * shape into its cells. Legality and the line preview both come from run.preview();
+ * this file decides nothing.
  */
 export class DragController {
   private readonly dragLayer = new Container();
@@ -40,45 +48,102 @@ export class DragController {
     if (!id) return;
     const shape = this.ctx.shapes.get(id);
     const graphic = this.ctx.hand.makeDragShape(shape, 1);
-    const stage = this.toStage(e.global);
-    graphic.position.set(Math.round(stage.x), Math.round(stage.y - DRAG_LIFT_PX));
+    const bounds = shapeSize(shape);
+    const slot = this.ctx.hand.slotCenter(handIndex);
+    const pointer = this.toStage(e.global);
+    const active: ActiveDrag = {
+      handIndex,
+      shape,
+      w: bounds.w,
+      h: bounds.h,
+      graphic,
+      pointerId: e.pointerId,
+      pointer,
+      lift: 0,
+      lastOrigin: null,
+      legal: false,
+    };
+    this.active = active;
     this.dragLayer.addChild(graphic);
-    this.active = { handIndex, shape, graphic, pointerId: e.pointerId, lastOrigin: null, legal: false };
-    void playLift(this.ctx, graphic, 0.5, 1);
+    // Start where the shape sits in the tray so the lift is continuous, not a jump.
+    graphic.position.set(Math.round(slot.x - (bounds.w * CELL_PX) / 4), Math.round(slot.y - (bounds.h * CELL_PX) / 4));
+    void playLift(this.ctx, graphic, 0.5, 1, (t) => {
+      if (this.active !== active) return;
+      active.lift = t;
+      this.placeGraphic(active);
+    });
   }
 
   private onMove(e: FederatedPointerEvent): void {
-    if (!this.active || this.ctx.inputLocked) return;
-    if (this.active.pointerId >= 0 && e.pointerId !== this.active.pointerId) return;
-    const stage = this.toStage(e.global);
-    this.active.graphic.position.set(Math.round(stage.x), Math.round(stage.y - DRAG_LIFT_PX));
-    const origin = this.ctx.board.originFromStage(stage.x, stage.y - DRAG_LIFT_PX);
-    const legal = this.ctx.session.run.canPlace(this.active.handIndex, origin);
-    this.active.lastOrigin = origin;
-    this.active.legal = legal;
-    this.ctx.board.setGhost(legal ? this.active.shape : null, legal ? origin : null);
+    const a = this.active;
+    if (!a || this.ctx.inputLocked) return;
+    if (a.pointerId >= 0 && e.pointerId !== a.pointerId) return;
+    a.pointer = this.toStage(e.global);
+    this.placeGraphic(a);
+    this.updatePreview(a);
+  }
+
+  /** The shape's top-left, in stage units, for the current pointer at the given lift (default: current). */
+  private shapeTopLeft(a: ActiveDrag, lift = a.lift): { x: number; y: number } {
+    return {
+      x: a.pointer.x - (a.w * CELL_PX) / 2,
+      y: a.pointer.y - (a.h * CELL_PX) / 2 - DRAG_LIFT_PX * lift,
+    };
+  }
+
+  private placeGraphic(a: ActiveDrag): void {
+    const tl = this.shapeTopLeft(a);
+    a.graphic.position.set(Math.round(tl.x), Math.round(tl.y));
+  }
+
+  /** The landing spot is always judged at full carry height, so a flick faster than the lift still lands. */
+  private updatePreview(a: ActiveDrag): void {
+    const tl = this.shapeTopLeft(a, 1);
+    const origin = this.ctx.board.originFromStage(tl.x, tl.y);
+    const preview = this.ctx.session.run.preview(a.handIndex, origin);
+    a.lastOrigin = origin;
+    a.legal = preview !== null;
+    this.ctx.board.setGhost(preview ? a.shape : null, preview ? origin : null);
+    this.ctx.board.setLinePreview(preview ? preview.rows : [], preview ? preview.cols : []);
   }
 
   private async onUp(e: FederatedPointerEvent): Promise<void> {
-    if (!this.active) return;
-    if (this.active.pointerId >= 0 && e.pointerId !== this.active.pointerId) return;
-    const { handIndex, graphic, lastOrigin, legal } = this.active;
+    const a = this.active;
+    if (!a) return;
+    if (a.pointerId >= 0 && e.pointerId !== a.pointerId) return;
+    a.pointer = this.toStage(e.global);
+    this.updatePreview(a);
     this.active = null;
     this.ctx.board.setGhost(null, null);
+    this.ctx.board.setLinePreview([], []);
 
-    if (legal && lastOrigin && !this.ctx.inputLocked) {
-      graphic.destroy();
-      await this.ctx.session.drop(handIndex, lastOrigin);
+    if (a.legal && a.lastOrigin && !this.ctx.inputLocked) {
+      const target = { x: BOARD_X + a.lastOrigin.x * CELL_PX, y: BOARD_Y + a.lastOrigin.y * CELL_PX };
+      this.ctx.setInputLocked(true);
+      await playSnapSlide(this.ctx, a.graphic, target.x, target.y);
+      this.ctx.setInputLocked(false);
+      a.graphic.destroy();
+      await this.ctx.session.drop(a.handIndex, a.lastOrigin);
       return;
     }
 
-    const slot = this.ctx.hand.slotCenter(handIndex);
-    await playReturnToSlot(this.ctx, graphic, slot.x, slot.y);
-    graphic.destroy();
+    const slot = this.ctx.hand.slotCenter(a.handIndex);
+    await playReturnToSlot(this.ctx, a.graphic, slot.x - (a.w * CELL_PX) / 4, slot.y - (a.h * CELL_PX) / 4);
+    a.graphic.destroy();
   }
 
   private toStage(global: { x: number; y: number }): { x: number; y: number } {
     const s = this.ctx.stageScale;
     return { x: global.x / s, y: global.y / s };
   }
+}
+
+function shapeSize(shape: Shape): { w: number; h: number } {
+  let w = 0;
+  let h = 0;
+  for (const c of shape.cells) {
+    if (c.x + 1 > w) w = c.x + 1;
+    if (c.y + 1 > h) h = c.y + 1;
+  }
+  return { w, h };
 }

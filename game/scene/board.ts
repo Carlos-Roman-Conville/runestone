@@ -11,6 +11,7 @@ export class BoardView {
   private readonly ghostLayer = new Container();
   private readonly cellSprites = new Map<string, Sprite>();
   private ghostSprites: Sprite[] = [];
+  private previewKeys: string[] = [];
 
   constructor(private readonly textures: Record<TileState, Texture>) {
     this.root.position.set(BOARD_X, BOARD_Y);
@@ -74,6 +75,27 @@ export class BoardView {
       this.ghostLayer.addChild(sp);
       this.ghostSprites.push(sp);
     }
+  }
+
+  /**
+   * Light the filled tiles of the rows and columns a drop would complete, so the
+   * player sees the payoff before letting go. Which lines is run.preview()'s answer.
+   */
+  setLinePreview(rows: readonly number[], cols: readonly number[]): void {
+    for (const key of this.previewKeys) {
+      const sp = this.cellSprites.get(key);
+      if (sp && sp.visible) sp.texture = this.textures.resting;
+    }
+    this.previewKeys = [];
+    const light = (x: number, y: number): void => {
+      const key = `${x},${y}`;
+      const sp = this.cellSprites.get(key);
+      if (!sp || !sp.visible) return;
+      sp.texture = this.textures.lit;
+      this.previewKeys.push(key);
+    };
+    for (const y of rows) for (let x = 0; x < BOARD_CELLS; x++) light(x, y);
+    for (const x of cols) for (let y = 0; y < BOARD_CELLS; y++) light(x, y);
   }
 
   /** Grid origin from a point in stage (logical) coordinates. */

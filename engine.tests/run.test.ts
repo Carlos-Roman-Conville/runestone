@@ -275,6 +275,8 @@ describe("Run copies", () => {
     const before = run.serialize();
     const p = run.preview(0, { x: 7, y: 0 })!;
     expect(p.linesCleared).toBe(1);
+    expect(p.rows).toEqual([0]);
+    expect(p.cols).toEqual([]);
     expect(p.streakAfter).toBe(1);
     expect(p.filledAfter).toBe(0);
     expect(p.gridAfter).toEqual(Array(8).fill(EMPTY_ROW));
@@ -285,6 +287,17 @@ describe("Run copies", () => {
     expect(run.serialize()).toEqual(before);
     const real = run.place(0, { x: 7, y: 0 }, NO_AD);
     expect(real[2]).toMatchObject({ points: p.points, linesCleared: 1 });
+  });
+
+  it("canPlaceAnywhere reports per hand slot and is false once the run is not playing", () => {
+    const run = craft({ rows: singlesOnlyBoard(), hand: ["single", "square2", null], seed: 1 });
+    expect(run.canPlaceAnywhere(0)).toBe(true);
+    expect(run.canPlaceAnywhere(1)).toBe(false);
+    expect(run.canPlaceAnywhere(2)).toBe(false);
+    expect(run.canPlaceAnywhere(7)).toBe(false);
+    run.place(0, { x: 3, y: 3 }, NO_AD);
+    expect(run.state().phase).toBe("ended");
+    expect(run.canPlaceAnywhere(1)).toBe(false);
   });
 
   it("events() and state() return copies", () => {

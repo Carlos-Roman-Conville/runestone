@@ -46,6 +46,13 @@ export class HandView {
     });
   }
 
+  /** Dim slots whose shape cannot be placed anywhere (the session asks run.canPlaceAnywhere). */
+  setPlaceable(flags: readonly boolean[]): void {
+    this.slots.forEach((slot, i) => {
+      slot.alpha = this.handIds[i] && flags[i] === false ? 0.35 : 1;
+    });
+  }
+
   slotCenter(handIndex: number): { x: number; y: number } {
     const slot = this.slots[handIndex];
     if (!slot) return { x: HAND_X0, y: HAND_Y };

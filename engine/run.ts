@@ -39,6 +39,9 @@ export interface PlaceOptions {
 export interface PlacementPreview {
   readonly points: number;
   readonly linesCleared: number;
+  /** The rows and columns that would clear. */
+  readonly rows: readonly number[];
+  readonly cols: readonly number[];
   readonly streakAfter: number;
   /** Filled cells on the grid after placing and clearing. */
   readonly filledAfter: number;
@@ -149,7 +152,14 @@ export class Run {
     const cleared = clearLines(grid, this.config.mode);
     const linesCleared = cleared.rows.length + cleared.cols.length;
     const scored = scorePlacement(cells.length, linesCleared, this.streak, this.config.scoring);
-    return { points: scored.points, linesCleared, streakAfter: scored.streakAfter, filledAfter: grid.count(), gridAfter: grid.toRows() };
+    return { points: scored.points, linesCleared, rows: cleared.rows, cols: cleared.cols, streakAfter: scored.streakAfter, filledAfter: grid.count(), gridAfter: grid.toRows() };
+  }
+
+  /** Does hand[handIndex] fit somewhere on the board right now? For the tray to dim dead shapes. Never mutates. */
+  canPlaceAnywhere(handIndex: number): boolean {
+    if (this.phase !== "playing") return false;
+    const shape = this.hand[handIndex];
+    return shape !== null && shape !== undefined && anyFit(shape, this.grid);
   }
 
   /** True only while a ContinueOffered is pending and no continue has been used (R3). */

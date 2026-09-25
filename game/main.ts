@@ -57,7 +57,7 @@ async function main(): Promise<void> {
   app.stage.addChild(world);
 
   const board = new BoardView(textures);
-  const hud = new HudView();
+  const hud = new HudView(app);
   world.addChild(board.root, hud.root);
 
   // The session is the scene's only way to change the run. It calls back through SessionView.
@@ -106,6 +106,7 @@ async function main(): Promise<void> {
       ctx.viewState = next;
       board.syncGrid(next.grid);
       ctx.hand.syncHand(next.hand);
+      ctx.hand.setPlaceable(next.hand.map((_, i) => session.run.canPlaceAnywhere(i)));
       hud.setScore(next.score, next.streak);
       if (next.phase === "ended") {
         board.root.alpha = 0.4;

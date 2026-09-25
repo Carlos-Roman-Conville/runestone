@@ -1,4 +1,5 @@
-import { Container, Rectangle, Text } from "pixi.js";
+import { type Application, Container, Rectangle, Text } from "pixi.js";
+import { tween } from "../anim/tween.js";
 import { LOGICAL_H, LOGICAL_W } from "../layout.js";
 import { PALETTE } from "../assets/tile.js";
 
@@ -33,11 +34,15 @@ export class HudView {
   private readonly hint: Text;
   private overlayTap: (() => void) | null = null;
   private offerResolve: ((watch: boolean) => void) | null = null;
+  private shownScore = 0;
+  private scoreTarget = 0;
+  private ticking = false;
   onDaily: () => void = () => {};
 
-  constructor() {
+  constructor(private readonly app: Application) {
     this.scoreText = new Text({ text: "0", style: { fill: PALETTE.text, fontSize: 16 } });
-    this.scoreText.position.set(12, 12);
+    this.scoreText.anchor.set(0, 0.5);
+    this.scoreText.position.set(12, 20);
     this.bestText = new Text({ text: "Best 0", style: SMALL });
     this.bestText.position.set(12, 32);
     this.streakText = new Text({ text: "Streak 0", style: SMALL });
@@ -70,9 +75,30 @@ export class HudView {
     this.root.addChild(this.overlay);
   }
 
-  setScore(score: number, streak: number): void {
-    this.scoreText.text = String(score);
+  /** Streak updates at once; the score counts up over ~250 ms with a small punch on a gain. */
+  setScore(score: number, streak: number, animate = true): void {
     this.streakText.text = `Streak ${streak}`;
+    this.scoreTarget = score;
+    if (!animate || score <= this.shownScore) {
+      this.shownScore = score;
+      this.scoreText.text = String(score);
+      return;
+    }
+    if (this.ticking) return; // the running tick will chase the new target
+    this.ticking = true;
+    const from = this.shownScore;
+    void tween(this.app, 250, (t) => {
+      const eased = 1 - (1 - t) * (1 - t);
+      this.shownScore = Math.round(from + (this.scoreTarget - from) * eased);
+      this.scoreText.text = String(this.shownScore);
+      const punch = t < 0.5 ? 1 + 0.25 * (t * 2) : 1.25 - 0.25 * ((t - 0.5) * 2);
+      this.scoreText.scale.set(punch);
+    }).then(() => {
+      this.scoreText.scale.set(1);
+      this.shownScore = this.scoreTarget;
+      this.scoreText.text = String(this.scoreTarget);
+      this.ticking = false;
+    });
   }
 
   setStatus(status: { mode: "endless" | "daily"; best: number; dailyDone: boolean }): void {
