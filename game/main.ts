@@ -10,6 +10,7 @@ TextureSource.defaultOptions.scaleMode = "nearest";
 const TILE_PX = 24;
 const TILE_SCALE = 4;
 
+/** Step 1: analytics, IAP and save stay on fakes; UMP + real analytics are step 7 (STEP1_EXPORT §4). */
 function createOps(): Ops {
   const ops = fakeOps();
   if (Capacitor.isNativePlatform()) {
