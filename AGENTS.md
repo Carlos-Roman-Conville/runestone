@@ -8,6 +8,7 @@ Runestone is a drag-and-place block puzzle (Block Blast / Woodoku family) in pix
 2. `files/MODULES.md` — one contract card per module (purpose, API, reads/writes, must-nots, invariants, tests, context to load) and the dependency order. **The unit of work: one module per session.**
 3. `files/EVENTS.md` — the event-log vocabulary the view animates and tests assert on.
 4. `files/GLOSSARY.md` when a word looks ambiguous.
+5. `files/STEP1_EXPORT.md` only if you are doing step 1 (export pipeline and test ad). `files/DESIGN.md` is the exported design doc: the reasoning, not the rules.
 
 Precedence when two documents disagree: **rules and scope → HANDOFF; module boundaries → MODULES; event names and fields → EVENTS.**
 

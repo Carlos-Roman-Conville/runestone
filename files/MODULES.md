@@ -79,7 +79,7 @@ Each card: **Purpose · Public API · Reads · Writes · Must not · Invariants 
 
 ### Scoring — `engine/scoring.ts`
 - **Purpose** Score a placement from its cells and the lines it cleared, with combo and streak multipliers.
-- **Public API** `scorePlacement(cellsPlaced, linesCleared, streakBefore, table) → { points, streakAfter }`; `ScoreTable` from JSON.
+- **Public API** `scorePlacement(cellsPlaced, linesCleared, streakBefore, table) → { points, streakAfter }`; `ScoreTable` loaded from `data/scoring.json` (schema in that file's `_schema`; R15).
 - **Reads** nothing but its arguments. **Writes** nothing.
 - **Must not** touch the grid or state.
 - **Invariants** pure; streak resets to 0 when `linesCleared === 0` (R9); points strictly increase with lines cleared.
@@ -110,6 +110,16 @@ Each card: **Purpose · Public API · Reads · Writes · Must not · Invariants 
 - **Public API** `record(runResult)`, `markDaily(key)`, `monthComplete(yyyyMm)`, `serialize()/deserialize()`.
 - **Must not** compute a rule or read the grid.
 - **Tests** round trip; a month is complete only when every day is marked; high score only rises.
+
+## Ops (outside the engine; the view's window on the world)
+
+### Ops ports — `ops/*.ts`, fakes in `ops/fake/`, real in `ops/real/`
+- **Purpose** Ads, purchases, analytics and save behind four interfaces so the view and tests never touch an SDK (R16).
+- **Public API** `Ops { ads: AdsPort, iap: IapPort, analytics: AnalyticsPort, save: SavePort }`; `fakeOps()` in tests. Method lists are in the interface files and are the contract; a real implementation that needs another method changes the interface, its fake and this card in the same commit.
+- **Must not** be imported by `engine/` (layer guard); construct a port inside the view; send analytics before `setConsent(true)`.
+- **Invariants** `showRewarded` resolves true only on the reward event; interstitials return false once ads are removed; `FakeSave` round-trips through `snapshot()` to simulate a restart.
+- **Tests** `ops/fake/fakes.test.ts` (one per invariant). Real implementations are verified on device per `STEP1_EXPORT.md`, never in CI.
+- **Context** this card, R3, R4, R16, `ops/*.ts`.
 
 ## Sim
 

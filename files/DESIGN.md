@@ -49,14 +49,14 @@ One endless mode at launch, a daily challenge, a high score, and pixel art on a 
 | Box clears | off at launch, Woodoku-style 3x3 as a second mode later | proposed |
 | Modes at launch | endless, daily challenge with a fixed seed shared by every player that day | proposed |
 | Continue | one rewarded ad per run clears a chosen row and column | proposed |
-| Theme | retro, same dungeon world as the match-3 or its own: blocks as stone bricks, clears as a torch-lit flash. Rex decides | open |
-| Art style | pixel art, one locked palette, one block size, whole-number scaling, nearest-neighbor filtering | proposed |
+| Theme | rune tablet in the dungeon world: plain stone tiles at launch, invented glyphs in version two | decided |
+| Art style | pixel art, one locked palette, 24 px block, whole-number scaling, nearest-neighbor filtering | decided |
 | Sound | one sting each for place, clear, combo, game over, plus a short loop | proposed |
 | Launch content | shape list, palette, one grid skin, daily seed table, store listing | proposed |
 
 **Feel is the product.** In this genre every competitor has the same rules, so the difference is the placement snap, the clear animation, the combo sound, and how the shape bag treats a struggling player. Budget polish time for those four things specifically.
 
-**Pixel rules.** Block sprite at 16 or 24 px, grid drawn at a whole-number scale, effects as animated sprite sheets, no mixing pixel and smooth assets. Six-hue palette for the shapes is not required here since shapes are not matched by color, but coloring each shape type consistently helps players read the hand at a glance.
+**Pixel rules.** Block sprite at 24 px (decided; set by the per-cell glyph rule), grid drawn at a whole-number scale, effects as animated sprite sheets, no mixing pixel and smooth assets. Six-hue palette for the shapes is not required here since shapes are not matched by color, but coloring each shape type consistently helps players read the hand at a glance.
 
 **Feel budget.** Six animations, six sounds, one block tile. This is the whole polish surface and where the game differs from every other clone.
 
@@ -227,7 +227,7 @@ Every decision, ruling and open question lands here, newest first. A row marked 
 | Date | Item | Decision or question | Tag |
 | --- | --- | --- | --- |
 | 2026-09-25 | Series order | This ships first, the match-3 second, a retro deckbuilder on the Duelist engine third. | SETTLED |
-| 2026-09-25 | Art style | Pixel art on a locked palette, whole-number scaling, nearest-neighbor. Block size 16 or 24 px open. | SETTLED, size UNVERIFIED |
+| 2026-09-25 | Art style | Pixel art on a locked palette, whole-number scaling, nearest-neighbor. Block size 24 px, set by the per-cell glyph rule. | SETTLED |
 | 2026-09-25 | Mercy rule | Redraw once with fitting shapes when no drawn shape fits; never shown to the player. | UNVERIFIED |
 | 2026-09-25 | Kill rule | Mercy chance falls after a run-length threshold so runs end. Threshold from the bot. | UNVERIFIED |
 | 2026-09-25 | Continue | One rewarded ad per run clears a chosen row and column. | UNVERIFIED |
@@ -240,7 +240,7 @@ Repo: [Carlos-Roman-Conville/runestone](https://github.com/Carlos-Roman-Conville
 
 Open questions to settle in the next pass:
 
-- [ ] Same dungeon world as the match-3, or its own theme?
+- [ ] Same dungeon world as the match-3, or its own theme? Settled: same world, rune tablet.
 - [ ] Target run length band for the bag tuner.
 - [ ] Which portal first: Poki, CrazyGames, or both?
 - [ ] Shape JSON schema: draft before the Shapes module session.
