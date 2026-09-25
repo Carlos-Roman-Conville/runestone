@@ -8,7 +8,7 @@ The living design doc is *Block Puzzle Game* (Claude Docs). This file is the fro
 
 ## State of play (2026-09-25)
 
-Scaffold plus the ops layer. Rng and Grid built with tests; `ops/` has the four port interfaces (ads, iap, analytics, save) with scriptable fakes and tests; `data/scoring.json` holds UNVERIFIED starting score values. CI runs the layer guard, typecheck and tests on a machine with no renderer. Next: step 1 (`STEP1_EXPORT.md`) in parallel with Shapes → Bag → Placement.
+Scaffold plus the ops layer. Rng and Grid built with tests; `ops/` has the four port interfaces (ads, iap, analytics, save) with scriptable fakes and tests; `data/scoring.json` holds UNVERIFIED starting score values. CI runs the layer guard, typecheck and tests on a machine with no renderer. Shapes (`engine/shapes.ts`) landed 2026-09-25 with 13 tests. Next: step 1 (`STEP1_EXPORT.md`) in parallel with Bag → Placement.
 
 ## Document map
 
