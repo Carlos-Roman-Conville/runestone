@@ -7,4 +7,4 @@ A drag-and-place block puzzle on a stone tablet, in pixel art. First title in a 
 - Build: Node 22. `npm ci`, then `npm run check` (layer guard, typecheck, tests). No renderer, no Android SDK needed for the engine.
 - Layout: `engine/` pure rules · `engine.tests/` Vitest · `data/` JSON · `ops/` ads, IAP, analytics, save behind interfaces · `game/` PixiJS view · `tools/sim/` bot and bag tuner.
 
-Design docs (living, Claude Docs): Block Puzzle Game, Candy Crush Game, Retro Game Series Roadmap. `files/` carries the frozen, code-facing copy.
+Design doc: `files/DESIGN.md` (exported from the living Claude Docs copy, *Block Puzzle Game*). `files/HANDOFF.md` is the code-facing version with the rulings table. The series roadmap lives one folder up in the games directory, not in any game repo.
