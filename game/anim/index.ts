@@ -6,74 +6,87 @@ import type { GameContext } from "../scene/types.js";
 import type { ViewState } from "../view-model.js";
 import { tween } from "./tween.js";
 
+type Ev<T extends GameEvent["type"]> = Extract<GameEvent, { type: T }>;
+
+/**
+ * Replay one action's events as animations, in order, then reconcile the scene with
+ * the final view state. The scene is advanced step by step so each cue animates the
+ * sprites it is about: placed tiles appear before they snap, cleared tiles light up
+ * and pop before they disappear. Syncing the whole grid up front would remove the
+ * cleared tiles before the clear cue ran (that was the first bug in this file).
+ */
 export async function replayEvents(ctx: GameContext, events: readonly GameEvent[], viewState: ViewState): Promise<void> {
-  ctx.applyViewState(viewState);
+  const hand: (string | null)[] = [...ctx.viewState.hand];
   for (const event of events) {
     switch (event.type) {
       case "Placed":
+        ctx.board.showCells(event.cells);
+        hand[event.handIndex] = null;
+        ctx.hand.syncHand(hand);
         await snapPlaced(ctx, event);
         break;
       case "LinesCleared":
-        if (event.cells.length > 0) await clearLines(ctx, event, viewState);
+        if (event.cells.length > 0) await clearCue(ctx, event);
         break;
       case "ComboScored":
+        ctx.hud.setScore(event.total, event.streak);
         if (event.linesCleared >= 2) await comboPop(ctx, event.combo);
         break;
-      case "StreakChanged":
-        ctx.hud.setScore(ctx.viewState.score, event.to);
-        break;
       case "HandDrawn":
+        hand.splice(0, hand.length, ...event.shapes);
+        ctx.hand.syncHand(hand);
         await dealHand(ctx);
         break;
       case "RunEnded":
         await gameOver(ctx, event.score);
         break;
       default:
+        // StreakChanged: the HUD already took the streak from ComboScored. HandEmpty,
+        // NoFitDetected, PlacementRejected: nothing to draw. Budget is six cues.
         break;
     }
   }
+  ctx.applyViewState(viewState);
 }
 
 export async function playLift(ctx: GameContext, dragLayer: Container, fromScale: number, toScale: number): Promise<void> {
   ctx.sfx.play("pickup");
   dragLayer.scale.set(fromScale);
-  await tween(ctx.app, 80, (t) => dragLayer.scale.set(fromScale + (toScale - fromScale) * t));
+  await tween(ctx.app, 80, (t) => {
+    if (dragLayer.destroyed) return; // dropped before the lift finished
+    dragLayer.scale.set(fromScale + (toScale - fromScale) * t);
+  });
 }
 
 export async function playReturnToSlot(ctx: GameContext, dragLayer: Container, targetX: number, targetY: number): Promise<void> {
   const sx = dragLayer.x;
   const sy = dragLayer.y;
   await tween(ctx.app, 80, (t) => {
+    if (dragLayer.destroyed) return;
     dragLayer.x = sx + (targetX - sx) * t;
     dragLayer.y = sy + (targetY - sy) * t;
     dragLayer.scale.set(0.5 + (1 - 0.5) * (1 - t));
   });
 }
 
-async function snapPlaced(ctx: GameContext, event: Extract<GameEvent, { type: "Placed" }>): Promise<void> {
+async function snapPlaced(ctx: GameContext, event: Ev<"Placed">): Promise<void> {
   ctx.sfx.play("place");
-  for (const cell of event.cells) {
-    const sp = ctx.board.getSpriteAtCell(cell.x, cell.y);
-    if (!sp) continue;
-    sp.scale.set(1.15);
-    await tween(ctx.app, 90, (t) => sp.scale.set(1.15 + (1 - 1.15) * t));
-  }
+  const sprites = event.cells.map((c) => ctx.board.getSpriteAtCell(c.x, c.y)).filter((s) => s !== undefined);
+  for (const sp of sprites) sp.scale.set(1.15);
+  await tween(ctx.app, 90, (t) => {
+    for (const sp of sprites) sp.scale.set(1.15 + (1 - 1.15) * t);
+  });
 }
 
-async function clearLines(
-  ctx: GameContext,
-  event: Extract<GameEvent, { type: "LinesCleared" }>,
-  viewState: ViewState,
-): Promise<void> {
+async function clearCue(ctx: GameContext, event: Ev<"LinesCleared">): Promise<void> {
   ctx.sfx.play("clear", event.rows.length + event.cols.length);
   ctx.board.setCellsState(event.cells, "lit");
   await tween(ctx.app, 120, () => {});
-  for (const cell of event.cells) {
-    const sp = ctx.board.getSpriteAtCell(cell.x, cell.y);
-    if (!sp) continue;
-    await tween(ctx.app, 100, (t) => sp.scale.set(1 - t));
-  }
-  ctx.board.syncGrid(viewState.grid);
+  const sprites = event.cells.map((c) => ctx.board.getSpriteAtCell(c.x, c.y)).filter((s) => s !== undefined);
+  await tween(ctx.app, 100, (t) => {
+    for (const sp of sprites) sp.scale.set(1 - t);
+  });
+  ctx.board.hideCells(event.cells);
 }
 
 async function comboPop(ctx: GameContext, combo: number): Promise<void> {
@@ -95,16 +108,19 @@ async function comboPop(ctx: GameContext, combo: number): Promise<void> {
 
 async function dealHand(ctx: GameContext): Promise<void> {
   const slots = ctx.hand.root.children;
-  for (let i = 0; i < slots.length; i++) {
-    const slot = slots[i];
-    if (!slot) continue;
-    const baseY = slot.y;
-    slot.y = baseY + 24;
-    await tween(ctx.app, 120, (t) => {
-      slot.y = baseY + 24 * (1 - t);
+  const bases = slots.map((s) => s.y);
+  slots.forEach((s, i) => {
+    s.y = (bases[i] ?? 0) + 24;
+  });
+  // 40 ms stagger: slot i starts at i * 40 ms, each slides for 120 ms.
+  const total = 120 + 40 * (slots.length - 1);
+  await tween(ctx.app, total, (t) => {
+    const now = t * total;
+    slots.forEach((s, i) => {
+      const local = Math.min(1, Math.max(0, (now - i * 40) / 120));
+      s.y = (bases[i] ?? 0) + 24 * (1 - local);
     });
-    if (i < slots.length - 1) await tween(ctx.app, 40, () => {});
-  }
+  });
 }
 
 async function gameOver(ctx: GameContext, score: number): Promise<void> {
