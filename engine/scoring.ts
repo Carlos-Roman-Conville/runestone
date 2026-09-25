@@ -75,7 +75,8 @@ export function scorePlacement(
   return { points: cellPoints + linePoints, streakAfter };
 }
 
-function comboMultiplierAt(table: ScoreTable, linesCleared: number): number {
+/** The combo multiplier Scoring applies for this many lines (clamped like the streak). */
+export function comboMultiplierAt(table: ScoreTable, linesCleared: number): number {
   const arr = table.comboMultiplier;
   // UNVERIFIED — see HANDOFF R15; a 3x3 can complete up to 6 lines, the table covers 6
   const idx = linesCleared >= arr.length ? arr.length - 1 : linesCleared;

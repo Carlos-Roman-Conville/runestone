@@ -1,0 +1,295 @@
+[
+  {
+    "type": "Placed",
+    "turn": 1,
+    "handIndex": 0,
+    "shapeId": "single",
+    "origin": {
+      "x": 3,
+      "y": 3
+    },
+    "cells": [
+      {
+        "x": 3,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 1,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 1,
+    "points": 1,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 1
+  },
+  {
+    "type": "NoFitDetected",
+    "turn": 1,
+    "hand": [
+      "line2_h",
+      "line3_v"
+    ]
+  },
+  {
+    "type": "ContinueOffered",
+    "turn": 1
+  },
+  {
+    "type": "ContinueUsed",
+    "turn": 1,
+    "row": 3,
+    "col": 3,
+    "cells": [
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "type": "Placed",
+    "turn": 2,
+    "handIndex": 1,
+    "shapeId": "line2_h",
+    "origin": {
+      "x": 3,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 2,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 2,
+    "points": 2,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 3
+  },
+  {
+    "type": "Placed",
+    "turn": 3,
+    "handIndex": 2,
+    "shapeId": "line3_v",
+    "origin": {
+      "x": 3,
+      "y": 1
+    },
+    "cells": [
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 3,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 3,
+    "points": 3,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 6
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 3
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 3,
+    "shapes": [
+      "smallL_0",
+      "largeL_2",
+      "line3_v"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 4,
+    "handIndex": 0,
+    "shapeId": "smallL_0",
+    "origin": {
+      "x": 6,
+      "y": 2
+    },
+    "cells": [
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 7,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 4,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 4,
+    "points": 3,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 9
+  },
+  {
+    "type": "Placed",
+    "turn": 5,
+    "handIndex": 2,
+    "shapeId": "line3_v",
+    "origin": {
+      "x": 3,
+      "y": 4
+    },
+    "cells": [
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 5
+      },
+      {
+        "x": 3,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 5,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 5,
+    "points": 3,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 12
+  },
+  {
+    "type": "NoFitDetected",
+    "turn": 5,
+    "hand": [
+      "largeL_2"
+    ]
+  },
+  {
+    "type": "RunEnded",
+    "turn": 5,
+    "score": 12,
+    "placements": 5,
+    "endedBy": "no_fit"
+  }
+]

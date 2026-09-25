@@ -5,5 +5,5 @@ alwaysApply: false
 ---
 - Vitest. One test per rule from the contract card; name tests after the rule.
 - Fixed seeds only. A test that depends on `Date.now()` or `Math.random` is a bug.
-- Golden fixtures live in `engine.tests/golden/*.json` and are compared whole; regenerate only by a script, never by hand, and say so in the commit.
+- Golden fixtures live in `engine.tests/golden/*.json` and are compared whole; regenerate only by `npm run golden:update`, never by hand, and say so in the commit.
 - Tests run with nothing installed but Node. No renderer, no SDK, no network.

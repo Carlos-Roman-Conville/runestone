@@ -82,19 +82,19 @@ Each card: **Purpose · Public API · Reads · Writes · Must not · Invariants 
 - **Public API** `scorePlacement(cellsPlaced, linesCleared, streakBefore, table) → { points, streakAfter }`; `ScoreTable` loaded from `data/scoring.json` (schema in that file's `_schema`; R15).
 - **Reads** nothing but its arguments. **Writes** nothing.
 - **Must not** touch the grid or state.
-- **Invariants** pure; streak resets to 0 when `linesCleared === 0` (R9); points strictly increase with lines cleared.
+- **Invariants** pure; streak resets to 0 when `linesCleared === 0` (R9); points strictly increase with lines cleared; a `linesCleared` or `streakBefore` past the end of its table clamps to the last entry (UNVERIFIED, R15).
 - **Spec** HANDOFF Core mechanic 5; R9.
 - **Tests** every term in the formula; streak reset; combo of 1, 2, 3, 4 lines; table-driven so tuning is a JSON edit.
 - **Context** this card, R9.
 
 ### Run — `engine/run.ts`
 - **Purpose** The turn: validate placement, place, clear, score, redraw when the hand is empty, detect game over, offer and apply the one continue.
-- **Public API** `Run.start(shapes, config, seed) → Run`; `run.place(handIndex, origin, { continueAvailable }) → Event[]`; `run.canContinue()`, `run.continueRun(row, col) → Event[]`; `run.state()` (read-only view); `run.events()` (full log); `run.clone()`, `serialize()/deserialize()`.
+- **Public API** `runConfig(bag, scoring, gridSize?, mode?) → RunConfig`; `Run.start(shapes, config, seed) → Run`; `run.place(handIndex, origin, { continueAvailable }) → Event[]`; `run.canPlace(handIndex, origin)` (ghost preview, never mutates); `run.canContinue()`, `run.continueRun(row, col) → Event[]`, `run.declineContinue() → Event[]` (the player refused or the ad failed; emits `RunEnded declined_continue`); `run.state()` (read-only snapshot); `run.events()` (full log copy); `run.clone()`, `serialize() → RunSave`, `Run.deserialize(shapes, config, save)`. `place`/`continueRun`/`declineContinue` throw when called in the wrong phase (`playing` / `continue_offered` / `ended`); an illegal placement in the right phase emits `PlacementRejected` instead.
 - **Reads** everything above, plus `continueAvailable: boolean` passed by the caller on each `place()` (the view asks `ops/ads` and passes the answer in; the engine never imports `ops/`). **Writes** its own state and the event log.
 - **Must not** be called by the view for anything the view could compute itself... except that the view may compute nothing: the view calls `fits` via `run.canPlace(handIndex, origin)` and animates events.
 - **Invariants** every state change emits exactly one event (EVENTS.md); a hand is redrawn only when all three are placed (R10); game over only when no shape in hand fits anywhere; continue at most once per run (R3); same seed + same inputs → identical event log.
 - **Spec** HANDOFF Core mechanic 1–7; R3, R10.
-- **Tests** scripted run to game over under a fixed seed with the expected event log (the first golden fixture); illegal placement rejected with `PlacementRejected` and no state change; continue once then refused; clone does not alias.
+- **Tests** `engine.tests/run.test.ts` (24) and `engine.tests/golden.test.ts` (the four fixtures from EVENTS.md, regenerated only by `npm run golden:update`). Scripted run to game over under a fixed seed with the expected event log; illegal placement rejected with `PlacementRejected` and no state change; continue once then refused; clone does not alias. Test helpers in `engine.tests/helpers/play.ts` (first-fit player, crafted boards).
 - **Context** this card, EVENTS.md, R3, R10.
 
 ## Meta

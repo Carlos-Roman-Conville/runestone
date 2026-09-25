@@ -8,7 +8,7 @@ The living design doc is *Block Puzzle Game* (Claude Docs). This file is the fro
 
 ## State of play (2026-09-25)
 
-Scaffold plus the ops layer. Rng and Grid built with tests; `ops/` has the four port interfaces (ads, iap, analytics, save) with scriptable fakes and tests; `data/scoring.json` holds UNVERIFIED starting score values. CI runs the layer guard, typecheck and tests on a machine with no renderer. Shapes, Placement and Bag (`engine/shapes.ts`, `engine/placement.ts`, `engine/bag.ts`, `data/bag.json`) landed 2026-09-25. Next: step 1 (`STEP1_EXPORT.md`) in parallel with Clearing and Scoring (Composer, `files/prompts/`), then Run.
+Scaffold plus the ops layer. Rng and Grid built with tests; `ops/` has the four port interfaces (ads, iap, analytics, save) with scriptable fakes and tests; `data/scoring.json` holds UNVERIFIED starting score values. CI runs the layer guard, typecheck and tests on a machine with no renderer. Step 3 is done (2026-09-25): Shapes, Placement, Bag, Clearing, Scoring and Run are in `engine/` with 122 tests, and `engine.tests/golden/run_seed_1.json` is a scripted run to game over under seed 1. Next: step 1 (`STEP1_EXPORT.md`, Composer) in parallel with step 4 (bot and bag tuning, `tools/sim/`).
 
 ## Document map
 
@@ -56,7 +56,7 @@ Nothing in a later step starts until the earlier gate passes.
 |---|---|---|---|
 | 1 | Blank PixiJS scene, Capacitor Android export, web build, test rewarded ad (AdMob test unit). Recipe: `STEP1_EXPORT.md` | Composer from the recipe, Rex on device | a build runs on Android and web and shows a test ad |
 | 2 | This scaffold: docs, Cursor rules, CI, Rng, Grid | Claude Code | **DONE 2026-09-25** |
-| 3 | Shapes → Bag → Placement → Clearing → Scoring → Run, headless | Claude Code, one module per session | a scripted run plays to game over in a test under a fixed seed |
+| 3 | Shapes → Bag → Placement → Clearing → Scoring → Run, headless | Claude Code, one module per session; Placement, Clearing, Scoring by Composer from `files/prompts/` | **DONE 2026-09-25** (`run_seed_1.json`) |
 | 4 | Bot and bag tuning | Claude Code | run-length distribution inside the target band (R5) |
 | 5 | View: grid, drag and snap, clear animation, hand, score | Composer wiring, Claude Code review | a human plays a full run on device; recording verified by opening frames |
 | 6 | Daily, Progress and save, continue via rewarded ad | Claude Code engine, Composer screens | save survives a restart; daily seed matches across two devices |

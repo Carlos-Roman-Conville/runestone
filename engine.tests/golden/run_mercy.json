@@ -1,0 +1,305 @@
+[
+  {
+    "type": "Placed",
+    "turn": 1,
+    "handIndex": 0,
+    "shapeId": "single",
+    "origin": {
+      "x": 3,
+      "y": 3
+    },
+    "cells": [
+      {
+        "x": 3,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 1,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 1,
+    "points": 1,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 1
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 1
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 1,
+    "shapes": [
+      "single",
+      "single",
+      "single"
+    ],
+    "mercy": true
+  },
+  {
+    "type": "Placed",
+    "turn": 2,
+    "handIndex": 0,
+    "shapeId": "single",
+    "origin": {
+      "x": 0,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 2,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 2,
+    "points": 1,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 2
+  },
+  {
+    "type": "Placed",
+    "turn": 3,
+    "handIndex": 1,
+    "shapeId": "single",
+    "origin": {
+      "x": 4,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 4,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 3,
+    "rows": [
+      0
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 3,
+    "points": 11,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 1,
+    "total": 13
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 3,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "Placed",
+    "turn": 4,
+    "handIndex": 2,
+    "shapeId": "single",
+    "origin": {
+      "x": 0,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 4,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 4,
+    "points": 1,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 14
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 4,
+    "from": 1,
+    "to": 0
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 4
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 4,
+    "shapes": [
+      "S",
+      "T_0",
+      "line2_h"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 5,
+    "handIndex": 1,
+    "shapeId": "T_0",
+    "origin": {
+      "x": 4,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 5,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 5,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 18
+  },
+  {
+    "type": "Placed",
+    "turn": 6,
+    "handIndex": 2,
+    "shapeId": "line2_h",
+    "origin": {
+      "x": 1,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 6,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 6,
+    "points": 2,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 20
+  },
+  {
+    "type": "NoFitDetected",
+    "turn": 6,
+    "hand": [
+      "S"
+    ]
+  },
+  {
+    "type": "RunEnded",
+    "turn": 6,
+    "score": 20,
+    "placements": 6,
+    "endedBy": "no_fit"
+  }
+]
