@@ -4,7 +4,7 @@
 - **Silhouette** — the shape family ignoring rotation: single, line2..line5, square2, square3, smallL, largeL, T, S. Eleven at launch.
 - **Hand** — the three shapes currently offered. Redrawn only when all three are placed (R10).
 - **Bag** — the weighted pool the hand is drawn from, plus the mercy and kill rules. Not a physical bag; draws are with replacement.
-- **Mercy** — a hidden redraw when no drawn shape fits (R1). Uses the `Mercy` stream.
+- **Mercy** — a hidden redraw of a dealt hand. At launch the test is R18, *solvable*: the three shapes can all be placed in some order. R1's weaker test (*any one fits*) remains as a tuner option. Uses the `Mercy` stream.
 - **Kill rule** — the mercy chance falling after a run-length threshold so runs end (R2).
 - **Placement** — one legal `place()` call. `turn` counts placements.
 - **Line** — a full row or column. **Box** — a full 3x3 in box mode (R6, off at launch).

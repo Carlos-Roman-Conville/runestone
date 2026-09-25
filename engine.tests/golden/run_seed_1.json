@@ -12,9 +12,9 @@
     "type": "HandDrawn",
     "turn": 0,
     "shapes": [
-      "smallL_3",
-      "smallL_3",
-      "line3_h"
+      "square2",
+      "square3",
+      "line2_v"
     ],
     "mercy": false
   },
@@ -22,12 +22,16 @@
     "type": "Placed",
     "turn": 1,
     "handIndex": 0,
-    "shapeId": "smallL_3",
+    "shapeId": "square2",
     "origin": {
       "x": 0,
       "y": 0
     },
     "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
       {
         "x": 1,
         "y": 0
@@ -53,24 +57,32 @@
   {
     "type": "ComboScored",
     "turn": 1,
-    "points": 3,
+    "points": 4,
     "linesCleared": 0,
     "combo": 0,
     "streak": 0,
-    "total": 3
+    "total": 4
   },
   {
     "type": "Placed",
     "turn": 2,
     "handIndex": 1,
-    "shapeId": "smallL_3",
+    "shapeId": "square3",
     "origin": {
       "x": 2,
       "y": 0
     },
     "cells": [
       {
+        "x": 2,
+        "y": 0
+      },
+      {
         "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
         "y": 0
       },
       {
@@ -80,6 +92,22 @@
       {
         "x": 3,
         "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 2
       }
     ]
   },
@@ -94,33 +122,29 @@
   {
     "type": "ComboScored",
     "turn": 2,
-    "points": 3,
+    "points": 9,
     "linesCleared": 0,
     "combo": 0,
     "streak": 0,
-    "total": 6
+    "total": 13
   },
   {
     "type": "Placed",
     "turn": 3,
     "handIndex": 2,
-    "shapeId": "line3_h",
+    "shapeId": "line2_v",
     "origin": {
-      "x": 4,
+      "x": 5,
       "y": 0
     },
     "cells": [
-      {
-        "x": 4,
-        "y": 0
-      },
       {
         "x": 5,
         "y": 0
       },
       {
-        "x": 6,
-        "y": 0
+        "x": 5,
+        "y": 1
       }
     ]
   },
@@ -135,11 +159,11 @@
   {
     "type": "ComboScored",
     "turn": 3,
-    "points": 3,
+    "points": 2,
     "linesCleared": 0,
     "combo": 0,
     "streak": 0,
-    "total": 9
+    "total": 15
   },
   {
     "type": "HandEmpty",
@@ -150,8 +174,8 @@
     "turn": 3,
     "shapes": [
       "single",
-      "T_0",
-      "smallL_2"
+      "largeL_1",
+      "square2"
     ],
     "mercy": false
   },
@@ -161,12 +185,12 @@
     "handIndex": 0,
     "shapeId": "single",
     "origin": {
-      "x": 0,
+      "x": 6,
       "y": 0
     },
     "cells": [
       {
-        "x": 0,
+        "x": 6,
         "y": 0
       }
     ]
@@ -186,291 +210,43 @@
     "linesCleared": 0,
     "combo": 0,
     "streak": 0,
-    "total": 10
+    "total": 16
   },
   {
     "type": "Placed",
     "turn": 5,
     "handIndex": 1,
-    "shapeId": "T_0",
+    "shapeId": "largeL_1",
     "origin": {
-      "x": 4,
-      "y": 1
-    },
-    "cells": [
-      {
-        "x": 4,
-        "y": 1
-      },
-      {
-        "x": 5,
-        "y": 1
-      },
-      {
-        "x": 6,
-        "y": 1
-      },
-      {
-        "x": 5,
-        "y": 2
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 5,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 5,
-    "points": 4,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 14
-  },
-  {
-    "type": "Placed",
-    "turn": 6,
-    "handIndex": 2,
-    "shapeId": "smallL_2",
-    "origin": {
-      "x": 0,
+      "x": 5,
       "y": 2
     },
     "cells": [
       {
-        "x": 0,
+        "x": 5,
         "y": 2
       },
       {
-        "x": 1,
+        "x": 6,
         "y": 2
-      },
-      {
-        "x": 1,
-        "y": 3
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 6,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 6,
-    "points": 3,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 17
-  },
-  {
-    "type": "HandEmpty",
-    "turn": 6
-  },
-  {
-    "type": "HandDrawn",
-    "turn": 6,
-    "shapes": [
-      "single",
-      "line5_v",
-      "smallL_2"
-    ],
-    "mercy": false
-  },
-  {
-    "type": "Placed",
-    "turn": 7,
-    "handIndex": 0,
-    "shapeId": "single",
-    "origin": {
-      "x": 2,
-      "y": 0
-    },
-    "cells": [
-      {
-        "x": 2,
-        "y": 0
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 7,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 7,
-    "points": 1,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 18
-  },
-  {
-    "type": "Placed",
-    "turn": 8,
-    "handIndex": 1,
-    "shapeId": "line5_v",
-    "origin": {
-      "x": 7,
-      "y": 0
-    },
-    "cells": [
-      {
-        "x": 7,
-        "y": 0
-      },
-      {
-        "x": 7,
-        "y": 1
       },
       {
         "x": 7,
         "y": 2
       },
       {
-        "x": 7,
+        "x": 5,
         "y": 3
       },
       {
-        "x": 7,
+        "x": 5,
         "y": 4
       }
     ]
   },
   {
     "type": "LinesCleared",
-    "turn": 8,
-    "rows": [
-      0,
-      1
-    ],
-    "cols": [],
-    "boxes": [],
-    "cells": [
-      {
-        "x": 0,
-        "y": 0
-      },
-      {
-        "x": 1,
-        "y": 0
-      },
-      {
-        "x": 2,
-        "y": 0
-      },
-      {
-        "x": 3,
-        "y": 0
-      },
-      {
-        "x": 4,
-        "y": 0
-      },
-      {
-        "x": 5,
-        "y": 0
-      },
-      {
-        "x": 6,
-        "y": 0
-      },
-      {
-        "x": 7,
-        "y": 0
-      },
-      {
-        "x": 0,
-        "y": 1
-      },
-      {
-        "x": 1,
-        "y": 1
-      },
-      {
-        "x": 2,
-        "y": 1
-      },
-      {
-        "x": 3,
-        "y": 1
-      },
-      {
-        "x": 4,
-        "y": 1
-      },
-      {
-        "x": 5,
-        "y": 1
-      },
-      {
-        "x": 6,
-        "y": 1
-      },
-      {
-        "x": 7,
-        "y": 1
-      }
-    ]
-  },
-  {
-    "type": "ComboScored",
-    "turn": 8,
-    "points": 45,
-    "linesCleared": 2,
-    "combo": 2,
-    "streak": 1,
-    "total": 63
-  },
-  {
-    "type": "StreakChanged",
-    "turn": 8,
-    "from": 0,
-    "to": 1
-  },
-  {
-    "type": "Placed",
-    "turn": 9,
-    "handIndex": 2,
-    "shapeId": "smallL_2",
-    "origin": {
-      "x": 0,
-      "y": 0
-    },
-    "cells": [
-      {
-        "x": 0,
-        "y": 0
-      },
-      {
-        "x": 1,
-        "y": 0
-      },
-      {
-        "x": 1,
-        "y": 1
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 9,
+    "turn": 5,
     "rows": [],
     "cols": [],
     "boxes": [],
@@ -478,444 +254,44 @@
   },
   {
     "type": "ComboScored",
-    "turn": 9,
-    "points": 3,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 66
-  },
-  {
-    "type": "StreakChanged",
-    "turn": 9,
-    "from": 1,
-    "to": 0
-  },
-  {
-    "type": "HandEmpty",
-    "turn": 9
-  },
-  {
-    "type": "HandDrawn",
-    "turn": 9,
-    "shapes": [
-      "square2",
-      "square2",
-      "line2_v"
-    ],
-    "mercy": false
-  },
-  {
-    "type": "Placed",
-    "turn": 10,
-    "handIndex": 0,
-    "shapeId": "square2",
-    "origin": {
-      "x": 2,
-      "y": 0
-    },
-    "cells": [
-      {
-        "x": 2,
-        "y": 0
-      },
-      {
-        "x": 3,
-        "y": 0
-      },
-      {
-        "x": 2,
-        "y": 1
-      },
-      {
-        "x": 3,
-        "y": 1
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 10,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 10,
-    "points": 4,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 70
-  },
-  {
-    "type": "Placed",
-    "turn": 11,
-    "handIndex": 1,
-    "shapeId": "square2",
-    "origin": {
-      "x": 4,
-      "y": 0
-    },
-    "cells": [
-      {
-        "x": 4,
-        "y": 0
-      },
-      {
-        "x": 5,
-        "y": 0
-      },
-      {
-        "x": 4,
-        "y": 1
-      },
-      {
-        "x": 5,
-        "y": 1
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 11,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 11,
-    "points": 4,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 74
-  },
-  {
-    "type": "Placed",
-    "turn": 12,
-    "handIndex": 2,
-    "shapeId": "line2_v",
-    "origin": {
-      "x": 6,
-      "y": 0
-    },
-    "cells": [
-      {
-        "x": 6,
-        "y": 0
-      },
-      {
-        "x": 6,
-        "y": 1
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 12,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 12,
-    "points": 2,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 76
-  },
-  {
-    "type": "HandEmpty",
-    "turn": 12
-  },
-  {
-    "type": "HandDrawn",
-    "turn": 12,
-    "shapes": [
-      "largeL_2",
-      "smallL_0",
-      "Z"
-    ],
-    "mercy": false
-  },
-  {
-    "type": "Placed",
-    "turn": 13,
-    "handIndex": 0,
-    "shapeId": "largeL_2",
-    "origin": {
-      "x": 2,
-      "y": 2
-    },
-    "cells": [
-      {
-        "x": 2,
-        "y": 2
-      },
-      {
-        "x": 3,
-        "y": 2
-      },
-      {
-        "x": 4,
-        "y": 2
-      },
-      {
-        "x": 4,
-        "y": 3
-      },
-      {
-        "x": 4,
-        "y": 4
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 13,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 13,
+    "turn": 5,
     "points": 5,
     "linesCleared": 0,
     "combo": 0,
     "streak": 0,
-    "total": 81
+    "total": 21
   },
   {
     "type": "Placed",
-    "turn": 14,
-    "handIndex": 1,
-    "shapeId": "smallL_0",
-    "origin": {
-      "x": 0,
-      "y": 3
-    },
-    "cells": [
-      {
-        "x": 0,
-        "y": 3
-      },
-      {
-        "x": 0,
-        "y": 4
-      },
-      {
-        "x": 1,
-        "y": 4
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 14,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 14,
-    "points": 3,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 84
-  },
-  {
-    "type": "Placed",
-    "turn": 15,
+    "turn": 6,
     "handIndex": 2,
-    "shapeId": "Z",
-    "origin": {
-      "x": 2,
-      "y": 4
-    },
-    "cells": [
-      {
-        "x": 2,
-        "y": 4
-      },
-      {
-        "x": 3,
-        "y": 4
-      },
-      {
-        "x": 3,
-        "y": 5
-      },
-      {
-        "x": 4,
-        "y": 5
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 15,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 15,
-    "points": 4,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 88
-  },
-  {
-    "type": "HandEmpty",
-    "turn": 15
-  },
-  {
-    "type": "HandDrawn",
-    "turn": 15,
-    "shapes": [
-      "line5_h",
-      "line3_h",
-      "line4_v"
-    ],
-    "mercy": false
-  },
-  {
-    "type": "Placed",
-    "turn": 16,
-    "handIndex": 0,
-    "shapeId": "line5_h",
+    "shapeId": "square2",
     "origin": {
       "x": 0,
-      "y": 6
-    },
-    "cells": [
-      {
-        "x": 0,
-        "y": 6
-      },
-      {
-        "x": 1,
-        "y": 6
-      },
-      {
-        "x": 2,
-        "y": 6
-      },
-      {
-        "x": 3,
-        "y": 6
-      },
-      {
-        "x": 4,
-        "y": 6
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 16,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 16,
-    "points": 5,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 93
-  },
-  {
-    "type": "Placed",
-    "turn": 17,
-    "handIndex": 1,
-    "shapeId": "line3_h",
-    "origin": {
-      "x": 0,
-      "y": 5
-    },
-    "cells": [
-      {
-        "x": 0,
-        "y": 5
-      },
-      {
-        "x": 1,
-        "y": 5
-      },
-      {
-        "x": 2,
-        "y": 5
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 17,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 17,
-    "points": 3,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 96
-  },
-  {
-    "type": "Placed",
-    "turn": 18,
-    "handIndex": 2,
-    "shapeId": "line4_v",
-    "origin": {
-      "x": 6,
       "y": 2
     },
     "cells": [
       {
-        "x": 6,
+        "x": 0,
         "y": 2
       },
       {
-        "x": 6,
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 0,
         "y": 3
       },
       {
-        "x": 6,
-        "y": 4
-      },
-      {
-        "x": 6,
-        "y": 5
+        "x": 1,
+        "y": 3
       }
     ]
   },
   {
     "type": "LinesCleared",
-    "turn": 18,
+    "turn": 6,
     "rows": [
       2
     ],
@@ -958,18 +334,774 @@
   },
   {
     "type": "ComboScored",
-    "turn": 18,
+    "turn": 6,
     "points": 14,
     "linesCleared": 1,
     "combo": 1,
     "streak": 1,
-    "total": 110
+    "total": 35
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 6,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 6
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 6,
+    "shapes": [
+      "single",
+      "line4_h",
+      "square2"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 7,
+    "handIndex": 0,
+    "shapeId": "single",
+    "origin": {
+      "x": 7,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 7,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 7,
+    "rows": [
+      0
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 7,
+    "points": 11,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 2,
+    "total": 46
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 7,
+    "from": 1,
+    "to": 2
+  },
+  {
+    "type": "Placed",
+    "turn": 8,
+    "handIndex": 1,
+    "shapeId": "line4_h",
+    "origin": {
+      "x": 0,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 8,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 8,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 50
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 8,
+    "from": 2,
+    "to": 0
+  },
+  {
+    "type": "Placed",
+    "turn": 9,
+    "handIndex": 2,
+    "shapeId": "square2",
+    "origin": {
+      "x": 6,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 7,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 9,
+    "rows": [
+      1
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 7,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 9,
+    "points": 14,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 1,
+    "total": 64
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 9,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 9
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 9,
+    "shapes": [
+      "line4_v",
+      "line4_v",
+      "line2_v"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 10,
+    "handIndex": 0,
+    "shapeId": "line4_v",
+    "origin": {
+      "x": 4,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 10,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 10,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 68
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 10,
+    "from": 1,
+    "to": 0
+  },
+  {
+    "type": "Placed",
+    "turn": 11,
+    "handIndex": 1,
+    "shapeId": "line4_v",
+    "origin": {
+      "x": 2,
+      "y": 1
+    },
+    "cells": [
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 11,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 11,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 72
+  },
+  {
+    "type": "Placed",
+    "turn": 12,
+    "handIndex": 2,
+    "shapeId": "line2_v",
+    "origin": {
+      "x": 5,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 12,
+    "rows": [
+      0
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 12,
+    "points": 12,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 1,
+    "total": 84
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 12,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 12
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 12,
+    "shapes": [
+      "smallL_2",
+      "line5_v",
+      "S"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 13,
+    "handIndex": 0,
+    "shapeId": "smallL_2",
+    "origin": {
+      "x": 0,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 13,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 13,
+    "points": 3,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 87
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 13,
+    "from": 1,
+    "to": 0
+  },
+  {
+    "type": "Placed",
+    "turn": 14,
+    "handIndex": 1,
+    "shapeId": "line5_v",
+    "origin": {
+      "x": 3,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 14,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 14,
+    "points": 5,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 92
+  },
+  {
+    "type": "Placed",
+    "turn": 15,
+    "handIndex": 2,
+    "shapeId": "S",
+    "origin": {
+      "x": 5,
+      "y": 1
+    },
+    "cells": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 7,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 15,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 15,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 96
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 15
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 15,
+    "shapes": [
+      "line4_h",
+      "line2_v",
+      "line4_h"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 16,
+    "handIndex": 0,
+    "shapeId": "line4_h",
+    "origin": {
+      "x": 4,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 16,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 16,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 100
+  },
+  {
+    "type": "Placed",
+    "turn": 17,
+    "handIndex": 1,
+    "shapeId": "line2_v",
+    "origin": {
+      "x": 0,
+      "y": 1
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 17,
+    "rows": [
+      1
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 7,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 17,
+    "points": 12,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 1,
+    "total": 112
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 17,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "Placed",
+    "turn": 18,
+    "handIndex": 2,
+    "shapeId": "line4_h",
+    "origin": {
+      "x": 0,
+      "y": 1
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 18,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 18,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 116
   },
   {
     "type": "StreakChanged",
     "turn": 18,
-    "from": 0,
-    "to": 1
+    "from": 1,
+    "to": 0
   },
   {
     "type": "HandEmpty",
@@ -979,9 +1111,9 @@
     "type": "HandDrawn",
     "turn": 18,
     "shapes": [
-      "line4_v",
-      "smallL_0",
-      "line5_v"
+      "line4_h",
+      "line5_v",
+      "line4_v"
     ],
     "mercy": false
   },
@@ -989,12 +1121,858 @@
     "type": "Placed",
     "turn": 19,
     "handIndex": 0,
+    "shapeId": "line4_h",
+    "origin": {
+      "x": 4,
+      "y": 1
+    },
+    "cells": [
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 7,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 19,
+    "rows": [
+      1
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 1
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 7,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 19,
+    "points": 14,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 1,
+    "total": 130
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 19,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "Placed",
+    "turn": 20,
+    "handIndex": 1,
+    "shapeId": "line5_v",
+    "origin": {
+      "x": 7,
+      "y": 1
+    },
+    "cells": [
+      {
+        "x": 7,
+        "y": 1
+      },
+      {
+        "x": 7,
+        "y": 2
+      },
+      {
+        "x": 7,
+        "y": 3
+      },
+      {
+        "x": 7,
+        "y": 4
+      },
+      {
+        "x": 7,
+        "y": 5
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 20,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 20,
+    "points": 5,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 135
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 20,
+    "from": 1,
+    "to": 0
+  },
+  {
+    "type": "Placed",
+    "turn": 21,
+    "handIndex": 2,
     "shapeId": "line4_v",
     "origin": {
-      "x": 5,
+      "x": 6,
+      "y": 3
+    },
+    "cells": [
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 6,
+        "y": 6
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 21,
+    "rows": [
+      3
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 7,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 21,
+    "points": 14,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 1,
+    "total": 149
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 21,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 21
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 21,
+    "shapes": [
+      "single",
+      "square3",
+      "line2_v"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 22,
+    "handIndex": 0,
+    "shapeId": "single",
+    "origin": {
+      "x": 2,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 2,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 22,
+    "rows": [
+      0
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 7,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 22,
+    "points": 11,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 2,
+    "total": 160
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 22,
+    "from": 1,
+    "to": 2
+  },
+  {
+    "type": "Placed",
+    "turn": 23,
+    "handIndex": 1,
+    "shapeId": "square3",
+    "origin": {
+      "x": 0,
+      "y": 5
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 1,
+        "y": 5
+      },
+      {
+        "x": 2,
+        "y": 5
+      },
+      {
+        "x": 0,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 2,
+        "y": 7
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 23,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 23,
+    "points": 9,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 169
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 23,
+    "from": 2,
+    "to": 0
+  },
+  {
+    "type": "Placed",
+    "turn": 24,
+    "handIndex": 2,
+    "shapeId": "line2_v",
+    "origin": {
+      "x": 0,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 24,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 24,
+    "points": 2,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 171
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 24
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 24,
+    "shapes": [
+      "line3_h",
+      "T_1",
+      "T_2"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 25,
+    "handIndex": 0,
+    "shapeId": "line3_h",
+    "origin": {
+      "x": 1,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 1,
+        "y": 0
+      },
+      {
+        "x": 2,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 25,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 25,
+    "points": 3,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 174
+  },
+  {
+    "type": "Placed",
+    "turn": 26,
+    "handIndex": 1,
+    "shapeId": "T_1",
+    "origin": {
+      "x": 1,
       "y": 2
     },
     "cells": [
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 4
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 26,
+    "rows": [
+      2
+    ],
+    "cols": [],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 7,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "type": "ComboScored",
+    "turn": 26,
+    "points": 14,
+    "linesCleared": 1,
+    "combo": 1,
+    "streak": 1,
+    "total": 188
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 26,
+    "from": 0,
+    "to": 1
+  },
+  {
+    "type": "Placed",
+    "turn": 27,
+    "handIndex": 2,
+    "shapeId": "T_2",
+    "origin": {
+      "x": 3,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 4,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 1
+      },
+      {
+        "x": 4,
+        "y": 1
+      },
+      {
+        "x": 5,
+        "y": 1
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 27,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 27,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 192
+  },
+  {
+    "type": "StreakChanged",
+    "turn": 27,
+    "from": 1,
+    "to": 0
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 27
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 27,
+    "shapes": [
+      "line3_v",
+      "largeL_3",
+      "line4_h"
+    ],
+    "mercy": false
+  },
+  {
+    "type": "Placed",
+    "turn": 28,
+    "handIndex": 0,
+    "shapeId": "line3_v",
+    "origin": {
+      "x": 6,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 6,
+        "y": 0
+      },
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 6,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 28,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 28,
+    "points": 3,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 195
+  },
+  {
+    "type": "Placed",
+    "turn": 29,
+    "handIndex": 1,
+    "shapeId": "largeL_3",
+    "origin": {
+      "x": 3,
+      "y": 5
+    },
+    "cells": [
+      {
+        "x": 5,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 3,
+        "y": 7
+      },
+      {
+        "x": 4,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 7
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 29,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 29,
+    "points": 5,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 200
+  },
+  {
+    "type": "Placed",
+    "turn": 30,
+    "handIndex": 2,
+    "shapeId": "line4_h",
+    "origin": {
+      "x": 0,
+      "y": 2
+    },
+    "cells": [
+      {
+        "x": 0,
+        "y": 2
+      },
+      {
+        "x": 1,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 3,
+        "y": 2
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 30,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 30,
+    "points": 4,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 204
+  },
+  {
+    "type": "HandEmpty",
+    "turn": 30
+  },
+  {
+    "type": "HandDrawn",
+    "turn": 30,
+    "shapes": [
+      "single",
+      "square2",
+      "line4_h"
+    ],
+    "mercy": true
+  },
+  {
+    "type": "Placed",
+    "turn": 31,
+    "handIndex": 0,
+    "shapeId": "single",
+    "origin": {
+      "x": 5,
+      "y": 0
+    },
+    "cells": [
+      {
+        "x": 5,
+        "y": 0
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 31,
+    "rows": [],
+    "cols": [],
+    "boxes": [],
+    "cells": []
+  },
+  {
+    "type": "ComboScored",
+    "turn": 31,
+    "points": 1,
+    "linesCleared": 0,
+    "combo": 0,
+    "streak": 0,
+    "total": 205
+  },
+  {
+    "type": "Placed",
+    "turn": 32,
+    "handIndex": 1,
+    "shapeId": "square2",
+    "origin": {
+      "x": 4,
+      "y": 2
+    },
+    "cells": [
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 5,
+        "y": 3
+      }
+    ]
+  },
+  {
+    "type": "LinesCleared",
+    "turn": 32,
+    "rows": [],
+    "cols": [
+      5
+    ],
+    "boxes": [],
+    "cells": [
+      {
+        "x": 5,
+        "y": 0
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
       {
         "x": 5,
         "y": 2
@@ -1010,126 +1988,44 @@
       {
         "x": 5,
         "y": 5
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 19,
-    "rows": [
-      4
-    ],
-    "cols": [],
-    "boxes": [],
-    "cells": [
-      {
-        "x": 0,
-        "y": 4
-      },
-      {
-        "x": 1,
-        "y": 4
-      },
-      {
-        "x": 2,
-        "y": 4
-      },
-      {
-        "x": 3,
-        "y": 4
-      },
-      {
-        "x": 4,
-        "y": 4
       },
       {
         "x": 5,
-        "y": 4
+        "y": 6
       },
       {
-        "x": 6,
-        "y": 4
-      },
-      {
-        "x": 7,
-        "y": 4
+        "x": 5,
+        "y": 7
       }
     ]
   },
   {
     "type": "ComboScored",
-    "turn": 19,
+    "turn": 32,
     "points": 14,
     "linesCleared": 1,
     "combo": 1,
-    "streak": 2,
-    "total": 124
+    "streak": 1,
+    "total": 219
   },
   {
     "type": "StreakChanged",
-    "turn": 19,
-    "from": 1,
-    "to": 2
-  },
-  {
-    "type": "Placed",
-    "turn": 20,
-    "handIndex": 1,
-    "shapeId": "smallL_0",
-    "origin": {
-      "x": 0,
-      "y": 1
-    },
-    "cells": [
-      {
-        "x": 0,
-        "y": 1
-      },
-      {
-        "x": 0,
-        "y": 2
-      },
-      {
-        "x": 1,
-        "y": 2
-      }
-    ]
-  },
-  {
-    "type": "LinesCleared",
-    "turn": 20,
-    "rows": [],
-    "cols": [],
-    "boxes": [],
-    "cells": []
-  },
-  {
-    "type": "ComboScored",
-    "turn": 20,
-    "points": 3,
-    "linesCleared": 0,
-    "combo": 0,
-    "streak": 0,
-    "total": 127
-  },
-  {
-    "type": "StreakChanged",
-    "turn": 20,
-    "from": 2,
-    "to": 0
+    "turn": 32,
+    "from": 0,
+    "to": 1
   },
   {
     "type": "NoFitDetected",
-    "turn": 20,
+    "turn": 32,
     "hand": [
-      "line5_v"
+      "line4_h"
     ]
   },
   {
     "type": "RunEnded",
-    "turn": 20,
-    "score": 127,
-    "placements": 20,
+    "turn": 32,
+    "score": 219,
+    "placements": 32,
     "endedBy": "no_fit"
   }
 ]

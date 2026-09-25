@@ -44,10 +44,12 @@ if (!has("sweep")) {
   const variants: Variant[] = [];
   for (const [preset, weights] of Object.entries(WEIGHT_PRESETS)) {
     variants.push({ name: `${preset} · mercy off`, bag: { ...bag, mercy: false, weights } });
-    for (const killThreshold of [30, 60, 100, 150]) {
-      for (const killHalfLife of [20, 50, 100]) {
-        const v: BagConfig = { ...bag, mercy: true, killThreshold, killHalfLife, weights };
-        variants.push({ name: `${preset} · mercy on · kill ${killThreshold}/${killHalfLife}`, bag: v });
+    for (const mercyScope of ["draw", "solvable"] as const) {
+      for (const killThreshold of [40, 80, 150]) {
+        for (const killHalfLife of [20, 50]) {
+          const v: BagConfig = { ...bag, mercy: true, mercyScope, killThreshold, killHalfLife, weights };
+          variants.push({ name: `${preset} · ${mercyScope} · kill ${killThreshold}/${killHalfLife}`, bag: v });
+        }
       }
     }
   }

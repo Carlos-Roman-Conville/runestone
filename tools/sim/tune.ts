@@ -104,17 +104,10 @@ export function sweep(shapes: ShapeSet, base: RunConfig, variants: readonly Vari
   }));
 }
 
-/** Weight presets to compare. "lineHeavy" is the reviewer's suggestion; both UNVERIFIED (R5). */
+/** Weight presets to compare. "current" is data/shapes.json; "original" is the pre-tuning set from the scaffold (UNVERIFIED history, R5). */
 export const WEIGHT_PRESETS: Readonly<Record<string, Readonly<Record<string, number>>>> = Object.freeze({
   current: {},
-  lineHeavy: {
-    line2_h: 9, line2_v: 9, line3_h: 9, line3_v: 9, line4_h: 7, line4_v: 7, line5_h: 4, line5_v: 4,
-    square2: 9, square3: 3, single: 8,
-    smallL_0: 3, smallL_1: 3, smallL_2: 3, smallL_3: 3,
-    largeL_0: 2, largeL_1: 2, largeL_2: 2, largeL_3: 2,
-    T_0: 3, T_1: 3, T_2: 3, T_3: 3,
-    S: 2, Z: 2,
-  },
+  original: { single: 8, line2_h: 6, line2_v: 6, line3_h: 6, line3_v: 6, line4_h: 5, line4_v: 5, line5_h: 3, line5_v: 3, square2: 6, square3: 2, smallL_0: 4, smallL_1: 4, smallL_2: 4, smallL_3: 4, largeL_0: 3, largeL_1: 3, largeL_2: 3, largeL_3: 3, T_0: 4, T_1: 4, T_2: 4, T_3: 4, S: 3, Z: 3 },
 });
 
 export function formatReport(name: string, r: TuneReport): string {

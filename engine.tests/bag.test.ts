@@ -5,6 +5,8 @@ import {
   BagDataError,
   drawHand,
   effectiveWeight,
+  handPasses,
+  isSolvable,
   loadBagConfig,
   mercyChance,
   type BagConfig,
@@ -19,6 +21,8 @@ const base = loadBagConfig(bagJson);
 function cfg(patch: Partial<BagConfig>): BagConfig {
   return { ...base, ...patch };
 }
+/** R1 behaviour: the original draw-scope mercy. */
+const draw = cfg({ mercyScope: "draw" });
 
 const EMPTY = () => Grid.empty(8);
 /** Only `single` fits: one empty cell. */
@@ -30,7 +34,8 @@ const stats = { placements: 0 };
 describe("Bag config", () => {
   it("loadBagConfig: real data loads with mercy on and is frozen", () => {
     expect(base.mercy).toBe(true);
-    expect(base.mercyScope).toBe("draw");
+    expect(base.mercyScope).toBe("solvable");
+    expect(base.mercyAttempts).toBeGreaterThanOrEqual(1);
     expect(base.killThreshold).toBeGreaterThan(0);
     expect(base.killHalfLife).toBeGreaterThan(0);
     expect(Object.isFrozen(base)).toBe(true);
@@ -41,6 +46,7 @@ describe("Bag config", () => {
     expect(() => loadBagConfig(null)).toThrow(BagDataError);
     expect(() => loadBagConfig({ ...bagJson, mercy: "yes" })).toThrow(/mercy must be/);
     expect(() => loadBagConfig({ ...bagJson, mercyScope: "row" })).toThrow(/mercyScope/);
+    expect(() => loadBagConfig({ ...bagJson, mercyAttempts: 0 })).toThrow(/mercyAttempts/);
     expect(() => loadBagConfig({ ...bagJson, killThreshold: -1 })).toThrow(/killThreshold/);
     expect(() => loadBagConfig({ ...bagJson, killHalfLife: 0 })).toThrow(/killHalfLife/);
     expect(() => loadBagConfig({ ...bagJson, weights: { single: -2 } })).toThrow(/weights\["single"\]/);
@@ -106,13 +112,13 @@ describe("Bag draw", () => {
   });
 });
 
-describe("Bag mercy (R1)", () => {
+describe("Bag mercy, draw scope (R1)", () => {
   it("mercy fires only when no drawn shape fits, and then every shape fits", () => {
     let fired = 0;
     let skipped = 0;
     for (let seed = 0; seed < 300; seed++) {
       const off = drawHand(shapes, ONE_CELL(), new Rng(seed), cfg({ mercy: false }), stats);
-      const on = drawHand(shapes, ONE_CELL(), new Rng(seed), base, stats);
+      const on = drawHand(shapes, ONE_CELL(), new Rng(seed), draw, stats);
       const originalFits = off.shapes.some((s) => s.id === "single");
       if (originalFits) {
         expect(on.mercy).toBe(false);
@@ -139,7 +145,7 @@ describe("Bag mercy (R1)", () => {
     for (let seed = 0; seed < 100; seed++) {
       const a = new Rng(seed);
       const b = new Rng(seed);
-      const on = drawHand(shapes, ONE_CELL(), a, base, stats);
+      const on = drawHand(shapes, ONE_CELL(), a, draw, stats);
       drawHand(shapes, ONE_CELL(), b, cfg({ mercy: false }), stats);
       expect(a.stream("Bag").position).toBe(b.stream("Bag").position);
       expect(b.stream("Mercy").position).toBe(0);
@@ -153,7 +159,7 @@ describe("Bag mercy (R1)", () => {
     const rng = new Rng(11);
     let mercyHands = 0;
     for (let i = 0; i < 500; i++) {
-      const hand = drawHand(shapes, grid, rng, base, stats);
+      const hand = drawHand(shapes, grid, rng, draw, stats);
       if (!hand.mercy) continue;
       mercyHands++;
       for (const s of hand.shapes) expect(["line3_v", "line4_v", "line5_v", "square3"]).not.toContain(s.id);
@@ -163,7 +169,7 @@ describe("Bag mercy (R1)", () => {
 
   it("returns the original draw with mercy false when nothing fits anywhere", () => {
     const a = new Rng(5);
-    const hand = drawHand(shapes, FULL(), a, base, stats);
+    const hand = drawHand(shapes, FULL(), a, draw, stats);
     expect(hand.mercy).toBe(false);
     expect(hand.shapes).toHaveLength(3);
   });
@@ -171,8 +177,91 @@ describe("Bag mercy (R1)", () => {
   it("does not mutate the grid", () => {
     const g = ONE_CELL();
     const before = g.toRows();
-    for (let seed = 0; seed < 50; seed++) drawHand(shapes, g, new Rng(seed), base, stats);
+    for (let seed = 0; seed < 50; seed++) drawHand(shapes, g, new Rng(seed), draw, stats);
     expect(g.toRows()).toEqual(before);
+  });
+});
+
+describe("Bag mercy, solvable scope (R18)", () => {
+  const S = (...ids: string[]) => ids.map((id) => shapes.get(id));
+  // A 2x2 pocket at (0,0) plus one isolated extra hole in every row and column, placed so
+  // no line ever completes. A full board with a pocket would clear on the first placement.
+  const POCKET = () =>
+    Grid.fromRows(["..#.####", "..##.###", "#####.##", "######.#", "#######.", ".#######", "#.######", "##.#####"]);
+  // Two pockets, same idea.
+  const TWO_POCKETS = () =>
+    Grid.fromRows(["..#.##..", "..##.#..", "#####.##", "######.#", "#######.", ".#######", "#.######", "##.#####"]);
+
+  it("isSolvable: anything on an empty grid", () => {
+    expect(isSolvable(S("square3", "line5_h", "largeL_0"), EMPTY())).toBe(true);
+    expect(isSolvable([], EMPTY())).toBe(true);
+  });
+
+  it("isSolvable: each fits alone but not together is false", () => {
+    expect(handPasses(S("square2", "square2", "single"), POCKET(), "draw")).toBe(true);
+    // Not square2+square2+single: the single can complete row 0 and column 3 and the cleared cross seats a square.
+    expect(isSolvable(S("square2", "square2", "square2"), POCKET())).toBe(false);
+    expect(isSolvable(S("square2", "single", "single"), POCKET())).toBe(true); // the extras take the singles
+    expect(isSolvable(S("square2", "square2"), POCKET())).toBe(false);
+    expect(isSolvable(S("square2"), POCKET())).toBe(true);
+  });
+
+  it("isSolvable: order and clears matter", () => {
+    // Row 0 needs one cell; after it clears, the freed row takes a line5_h.
+    const grid = Grid.fromRows(["#######.", "########", "########", "########", "########", "########", "########", "########"]);
+    expect(isSolvable(S("single", "line5_h"), grid)).toBe(true);
+    expect(isSolvable(S("line5_h"), grid)).toBe(false);
+  });
+
+  it("isSolvable never mutates the grid", () => {
+    const g = POCKET();
+    const before = g.toRows();
+    isSolvable(S("square2", "single", "single"), g);
+    expect(g.toRows()).toEqual(before);
+  });
+
+  it("every dealt hand is solvable when mercy fires, and it fires only on unsolvable draws", () => {
+    let fired = 0;
+    let kept = 0;
+    for (let seed = 0; seed < 300; seed++) {
+      const off = drawHand(shapes, TWO_POCKETS(), new Rng(seed), cfg({ mercy: false }), stats);
+      const on = drawHand(shapes, TWO_POCKETS(), new Rng(seed), base, stats);
+      if (isSolvable(off.shapes, TWO_POCKETS())) {
+        expect(on.mercy).toBe(false);
+        expect(on.shapes.map((s) => s.id)).toEqual(off.shapes.map((s) => s.id));
+        kept++;
+      } else if (on.mercy) {
+        expect(isSolvable(on.shapes, TWO_POCKETS())).toBe(true);
+        fired++;
+      } else {
+        expect(on.shapes.map((s) => s.id)).toEqual(off.shapes.map((s) => s.id)); // gave up
+      }
+    }
+    expect(fired).toBeGreaterThan(0);
+    expect(kept).toBeGreaterThan(0);
+  });
+
+  it("solvable scope leaves the Bag stream where mercy off does", () => {
+    for (let seed = 0; seed < 50; seed++) {
+      const a = new Rng(seed);
+      const b = new Rng(seed);
+      drawHand(shapes, TWO_POCKETS(), a, base, stats);
+      drawHand(shapes, TWO_POCKETS(), b, cfg({ mercy: false }), stats);
+      expect(a.stream("Bag").position).toBe(b.stream("Bag").position);
+    }
+  });
+
+  it("gives up after mercyAttempts and deals the original", () => {
+    // Only square2 is drawable, the pocket takes one, so no three-shape hand is ever solvable.
+    const onlySquare2: Record<string, number> = {};
+    for (const s of shapes.all()) onlySquare2[s.id] = s.id === "square2" ? 1 : 0;
+    const few = cfg({ mercyAttempts: 3, weights: onlySquare2 });
+    for (let seed = 0; seed < 100; seed++) {
+      const a = new Rng(seed);
+      const hand = drawHand(shapes, POCKET(), a, few, stats);
+      expect(hand.mercy).toBe(false);
+      expect(a.stream("Mercy").position).toBeLessThanOrEqual(1 + 3 * 3);
+    }
   });
 });
 
@@ -191,7 +280,7 @@ describe("Bag kill rule (R2)", () => {
     const count = (placements: number): number => {
       let fired = 0;
       for (let seed = 0; seed < 400; seed++) {
-        if (drawHand(shapes, ONE_CELL(), new Rng(seed), base, { placements }).mercy) fired++;
+        if (drawHand(shapes, ONE_CELL(), new Rng(seed), draw, { placements }).mercy) fired++;
       }
       return fired;
     };
@@ -207,7 +296,7 @@ describe("Bag kill rule (R2)", () => {
   it("the kill roll consumes exactly one Mercy value when it declines", () => {
     const a = new Rng(9);
     const dead = { placements: base.killThreshold + 40 * base.killHalfLife };
-    const hand = drawHand(shapes, ONE_CELL(), a, base, dead);
+    const hand = drawHand(shapes, ONE_CELL(), a, draw, dead);
     const originalFits = hand.shapes.some((s) => s.id === "single");
     if (originalFits) expect(a.stream("Mercy").position).toBe(0);
     else expect(a.stream("Mercy").position).toBe(1);
