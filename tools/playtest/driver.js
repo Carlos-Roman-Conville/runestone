@@ -38,7 +38,8 @@ window.__tap = tap;
 function settled() { const { ctx, session, drag } = R(); return !ctx.inputLocked && !session.busy && !drag.active; }
 function legalMoves() { const run = R().session.run; const out = []; for (let h = 0; h < 3; h++) for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) if (run.canPlace(h, { x, y })) out.push({ h, x, y }); return out; }
 function shapeWH(id) { let w = 0, h = 0; for (const c of R().ctx.shapes.get(id).cells) { w = Math.max(w, c.x + 1); h = Math.max(h, c.y + 1); } return { w, h }; }
-function target(hIdx, x, y) { const { w, h } = shapeWH(R().session.run.state().hand[hIdx]); return { tx: 12 + x * 24 + w * 12, ty: 48 + y * 24 + h * 12 + 32 }; }
+// Carried shapes ride with their bottom edge 20 px above the finger (layout DRAG_LIFT_PX).
+function target(hIdx, x, y) { const { w, h } = shapeWH(R().session.run.state().hand[hIdx]); return { tx: 12 + x * 24 + w * 12, ty: 48 + y * 24 + h * 24 + 20 }; }
 const slotXY = (h) => ({ sx: 4 + h * 72 + 32, sy: 252 + 32 });
 async function drag(hIdx, tx, ty, style) {
   const { sx, sy } = slotXY(hIdx);

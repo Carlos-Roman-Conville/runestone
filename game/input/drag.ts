@@ -122,11 +122,16 @@ export class DragController {
     this.updatePreview(a);
   }
 
-  /** The shape's top-left, in stage units, for the current pointer at the given lift (default: current). */
+  /**
+   * The shape's top-left, in stage units, for the current pointer at the given lift
+   * (default: current). Lift 0: centred on the finger (where it sat in the tray).
+   * Lift 1: bottom edge DRAG_LIFT_PX above the finger, so the thumb never covers it.
+   */
   private shapeTopLeft(a: ActiveDrag, lift = a.lift): { x: number; y: number } {
+    const half = (a.h * CELL_PX) / 2;
     return {
       x: a.pointer.x - (a.w * CELL_PX) / 2,
-      y: a.pointer.y - (a.h * CELL_PX) / 2 - DRAG_LIFT_PX * lift,
+      y: a.pointer.y - half - lift * (half + DRAG_LIFT_PX),
     };
   }
 
