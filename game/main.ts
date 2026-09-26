@@ -74,7 +74,21 @@ async function main(): Promise<void> {
     async pickContinueCell(): Promise<Pos> {
       hud.showHint("Tap a cell to clear its row and column");
       try {
-        return await board.pickCell(() => hud.showHint("Tap it again to clear"));
+        const judge = (cell: Pos): "ok" | "weak" | "reject" => {
+          const p = session.run.previewContinue(cell.y, cell.x);
+          if (!p || p.cleared === 0) return "reject";
+          return p.handFitsAfter ? "ok" : "weak";
+        };
+        return await board.pickCell((cell) => {
+          const verdict = judge(cell);
+          hud.showHint(
+            verdict === "reject"
+              ? "Nothing to clear there. Pick a row or column with blocks"
+              : verdict === "weak"
+                ? "Your shapes still won't fit. Tap again to use it anyway"
+                : "Tap it again to clear",
+          );
+        }, judge);
       } finally {
         hud.showHint(null);
       }
@@ -145,6 +159,12 @@ async function main(): Promise<void> {
 
   applyLetterbox(app, ctx);
   window.addEventListener("resize", () => applyLetterbox(app, ctx));
+  // The daily rolls over at 00:00 UTC while the game may be open; keep the Daily label honest.
+  const refreshStatus = (): void => hud.setStatus(session.status());
+  setInterval(refreshStatus, 30_000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") refreshStatus();
+  });
   window.visualViewport?.addEventListener("resize", () => applyLetterbox(app, ctx));
 
   // Dev-only: lets the scripted playtest compare the scene to the engine state. Vite strips this from builds.

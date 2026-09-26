@@ -162,6 +162,22 @@ export class Run {
     return shape !== null && shape !== undefined && anyFit(shape, this.grid);
   }
 
+  /**
+   * What continueRun(row, col) would do, without doing it: how many cells it would clear
+   * and whether any shape left in hand would then fit somewhere. Null unless a continue
+   * is on offer. The view uses it to refuse a pick that clears nothing and to warn before
+   * one that frees too little, so a watched ad is not wasted by a careless tap.
+   */
+  previewContinue(row: number, col: number): { cleared: number; handFitsAfter: boolean } | null {
+    if (this.phase !== "continue_offered" || !this.grid.inBounds(col, row)) return null;
+    const grid = this.grid.clone();
+    let cleared = 0;
+    for (let x = 0; x < grid.size; x++) if (grid.isFilled(x, row)) { grid.clear(x, row); cleared++; }
+    for (let y = 0; y < grid.size; y++) if (grid.isFilled(col, y)) { grid.clear(col, y); cleared++; }
+    const handFitsAfter = this.hand.some((s) => s !== null && anyFit(s, grid));
+    return { cleared, handFitsAfter };
+  }
+
   /** True only while a ContinueOffered is pending and no continue has been used (R3). */
   canContinue(): boolean {
     return this.phase === "continue_offered" && !this.continueUsed;

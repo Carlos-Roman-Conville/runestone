@@ -133,7 +133,11 @@ export class BoardView {
    * ghost cross under the pointer, resolves on tap. The board decides nothing about what
    * the choice does; Run does that in continueRun.
    */
-  pickCell(onSelect?: (cell: Pos) => void): Promise<Pos> {
+  /**
+   * `judge` (optional) is asked about each tapped cell: "reject" keeps the selection from
+   * being confirmed (a second tap does nothing), anything else allows the second tap.
+   */
+  pickCell(onSelect?: (cell: Pos) => void, judge?: (cell: Pos) => "ok" | "weak" | "reject"): Promise<Pos> {
     return new Promise((resolve) => {
       this.root.eventMode = "static";
       this.root.hitArea = new Rectangle(0, 0, BOARD_PX, BOARD_PX);
@@ -157,6 +161,7 @@ export class BoardView {
           onSelect?.(cell);
           return;
         }
+        if (judge?.(cell) === "reject") return; // a pick that clears nothing is never confirmed
         this.root.off("pointermove", onMove);
         this.root.off("pointertap", onTap);
         this.root.eventMode = "passive";

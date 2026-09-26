@@ -234,6 +234,19 @@ describe("Run game over and continue (R3)", () => {
     expect(types(events)).toEqual(["Placed", "LinesCleared", "ComboScored", "NoFitDetected", "RunEnded"]);
   });
 
+  it("previewContinue reports cells cleared and whether the hand fits after, without changing anything", () => {
+    const rows = ["........", ".#.#.#.#", ".#.#.#.#", ".#.#.#.#", ".#.#.#.#", ".#.#.#.#", ".#.#.#.#", ".#.#.#.#"];
+    const run = craft({ rows, hand: ["square3", "square3", "largeL_0"], seed: 1 });
+    expect(run.previewContinue(0, 0)).toBeNull(); // no offer yet
+    const save = run.serialize();
+    const offered = Run.deserialize(shapes, config, { ...save, phase: "continue_offered" });
+    const before = offered.serialize();
+    expect(offered.previewContinue(0, 0)).toEqual({ cleared: 0, handFitsAfter: false }); // empty row and column
+    expect(offered.previewContinue(0, 1)).toEqual({ cleared: 7, handFitsAfter: true }); // column 1 opens a 3-wide gap
+    expect(offered.previewContinue(9, 0)).toBeNull();
+    expect(offered.serialize()).toEqual(before);
+  });
+
   it("continueRun rejects an out-of-grid row or column", () => {
     const run = craft({ rows: nearlyFull, hand: ["single", "square2", "T_0"], seed: 1 });
     run.place(0, lastCell, AD);

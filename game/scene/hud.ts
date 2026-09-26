@@ -79,7 +79,8 @@ export class HudView {
     this.dailyButton = button("Daily", 160, 14, () => this.onDaily());
     this.root.addChild(this.scoreText, this.bestText, this.streakText, this.modeText, this.dailyButton);
 
-    this.hint = new Text({ text: "", style: { fill: PALETTE.text, fontSize: 11, align: "center" } });
+    // Wraps inside the stage: the longer continue hints are wider than 216 px on one line.
+    this.hint = new Text({ text: "", style: { fill: PALETTE.text, fontSize: 11, align: "center", wordWrap: true, wordWrapWidth: LOGICAL_W - 24, lineHeight: 14 } });
     this.hint.anchor.set(0.5, 0);
     this.hint.position.set(LOGICAL_W / 2, LOGICAL_H - 48);
     this.hint.visible = false;
