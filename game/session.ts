@@ -60,6 +60,28 @@ export interface SessionDeps {
   /** Injected clocks keep the daily testable. */
   readonly now: () => Date;
   readonly randomSeed: () => number;
+  /**
+   * How long to wait on the ad SDK before giving up. The game never waits on an ad
+   * forever: "is one ready?" falls back to no, "show it" falls back to not watched.
+   */
+  readonly adTimeouts?: { readonly availableMs?: number; readonly showMs?: number };
+}
+
+/** Resolve with `fallback` if `p` has not settled within `ms`; a rejection also becomes `fallback`. */
+function within<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms);
+    p.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(fallback);
+      },
+    );
+  });
 }
 
 export class Session {
@@ -220,11 +242,8 @@ export class Session {
       ops.analytics.track({ name: "continue_offered" });
       if (await view.offerContinue()) {
         ops.analytics.track({ name: "ad_shown", kind: "rewarded", placement: "continue" });
-        try {
-          rewarded = await ops.ads.showRewarded("continue");
-        } catch {
-          rewarded = false; // an SDK error must not strand the run in continue_offered
-        }
+        // An SDK error or an ad that never reports back must not strand the run in continue_offered.
+        rewarded = await within(ops.ads.showRewarded("continue"), this.deps.adTimeouts?.showMs ?? 180_000, false);
         if (rewarded) {
           ops.analytics.track({ name: "ad_rewarded", placement: "continue" });
           ops.analytics.track({ name: "continue_taken" });
@@ -278,11 +297,8 @@ export class Session {
       this.continueAvailable = false;
       return;
     }
-    try {
-      this.continueAvailable = await this.deps.ops.ads.rewardedAvailable("continue");
-    } catch {
-      this.continueAvailable = false;
-    }
+    // Asked after every move; an SDK that hangs must not freeze the game, so it gets 1.5 s.
+    this.continueAvailable = await within(this.deps.ops.ads.rewardedAvailable("continue"), this.deps.adTimeouts?.availableMs ?? 1500, false);
   }
 
   private async persistRun(): Promise<void> {

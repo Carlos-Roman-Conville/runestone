@@ -206,6 +206,11 @@ export class HudView {
     r(watch);
   }
 
+  /** Transient effects (the combo pop) go under the overlay, so a prompt panel is never covered. */
+  addEffect(display: Container): void {
+    this.root.addChildAt(display, this.root.getChildIndex(this.overlay));
+  }
+
   showHint(text: string | null): void {
     this.hint.text = text ?? "";
     this.hint.visible = text !== null;

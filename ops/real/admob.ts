@@ -31,36 +31,28 @@ export class AdMobAds implements AdsPort {
     await this.ensureInitialized();
     if (!this.rewardedLoaded) return false;
 
-    return new Promise<boolean>((resolve) => {
-      let gotReward = false;
-      const handles: PluginListenerHandle[] = [];
-      let settled = false;
-
-      const finish = async (result: boolean) => {
-        if (settled) return;
-        settled = true;
-        for (const h of handles) await h.remove();
-        this.rewardedLoaded = false;
-        void this.prepareRewarded();
-        resolve(result);
-      };
-
-      void AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
-        gotReward = true;
-      }).then((h) => handles.push(h));
-
-      void AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
-        void finish(gotReward);
-      }).then((h) => handles.push(h));
-
-      void AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => {
-        void finish(false);
-      }).then((h) => handles.push(h));
-
-      void AdMob.showRewardVideoAd().catch(() => {
-        void finish(false);
-      });
+    let gotReward = false;
+    let settle: (result: boolean) => void = () => {};
+    const done = new Promise<boolean>((resolve) => {
+      settle = resolve;
     });
+    // Every listener is registered (awaited) before the ad is shown, so no event can fire
+    // into the gap between "add listener" and "listener active".
+    const handles: PluginListenerHandle[] = await Promise.all([
+      AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+        gotReward = true;
+      }),
+      AdMob.addListener(RewardAdPluginEvents.Dismissed, () => settle(gotReward)),
+      AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => settle(false)),
+    ]);
+    try {
+      AdMob.showRewardVideoAd().catch(() => settle(false));
+      return await done;
+    } finally {
+      for (const h of handles) await h.remove();
+      this.rewardedLoaded = false;
+      void this.prepareRewarded();
+    }
   }
 
   async showInterstitial(_placement: InterstitialPlacement): Promise<boolean> {
@@ -87,25 +79,21 @@ export class AdMobAds implements AdsPort {
     return this.initPromise;
   }
 
+  /**
+   * Load the next rewarded ad. The plugin's prepare call resolves once the ad has loaded
+   * and rejects if it fails, so no load event is awaited (an event can fire before its
+   * listener is live, which would leave this waiting forever).
+   */
   private prepareRewarded(): Promise<void> {
     if (this.preparePromise) return this.preparePromise;
     this.preparePromise = (async () => {
       this.rewardedLoaded = false;
-      const handles: PluginListenerHandle[] = [];
       try {
-        const loaded = new Promise<void>((resolve, reject) => {
-          void AdMob.addListener(RewardAdPluginEvents.Loaded, () => resolve()).then((h) => handles.push(h));
-          void AdMob.addListener(RewardAdPluginEvents.FailedToLoad, () => reject(new Error("reward load failed"))).then(
-            (h) => handles.push(h),
-          );
-        });
         await AdMob.prepareRewardVideoAd({ adId: TEST_REWARDED_AD_ID, isTesting: true });
-        await loaded;
         this.rewardedLoaded = true;
       } catch {
         this.rewardedLoaded = false;
       } finally {
-        for (const h of handles) await h.remove();
         this.preparePromise = null;
       }
     })();

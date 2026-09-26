@@ -211,6 +211,35 @@ describe("Session continue via rewarded ad (R3)", () => {
     expect(JSON.parse(reopened.save.snapshot()[RUN_KEY] as string).rewardPending).toBeUndefined();
   });
 
+  it("an ad SDK that never answers cannot freeze the game", async () => {
+    const ops = fakeOps();
+    ops.ads.rewardedAvailable = () => new Promise(() => {});
+    ops.ads.showRewarded = () => new Promise(() => {});
+    await ops.save.store(RUN_KEY, nearNoFitSave(["single", "line2_h", "line3_v"]));
+    const view = new StubView();
+    let seed = 100;
+    const session = new Session({ shapes, config, ops, view, now: () => NOW, randomSeed: () => seed++, adTimeouts: { availableMs: 20, showMs: 20 } });
+    await session.boot(); // would hang forever without the timeout
+    expect(session.continueAvailable).toBe(false);
+    await session.drop(0, { x: 3, y: 3 });
+    expect(session.run.state().phase).toBe("ended"); // no ad ready: plain game over, not a hang
+  });
+
+  it("an ad that starts but never reports back counts as not watched", async () => {
+    const ops = fakeOps();
+    ops.ads.showRewarded = () => new Promise(() => {});
+    await ops.save.store(RUN_KEY, nearNoFitSave(["single", "line2_h", "line3_v"]));
+    const view = new StubView();
+    let seed = 100;
+    const session = new Session({ shapes, config, ops, view, now: () => NOW, randomSeed: () => seed++, adTimeouts: { availableMs: 20, showMs: 20 } });
+    await session.boot();
+    expect(session.continueAvailable).toBe(true);
+    await session.drop(0, { x: 3, y: 3 });
+    expect(view.offers).toBe(1);
+    expect(view.picks).toBe(0);
+    expect(session.run.events().at(-1)).toMatchObject({ type: "RunEnded", endedBy: "declined_continue" });
+  });
+
   it("a saved run that was mid-offer re-offers on boot", async () => {
     const ops = fakeOps();
     const run = craft({ rows: singlesOnlyBoard(), hand: ["single", "square3", "square3"], seed: 1 });

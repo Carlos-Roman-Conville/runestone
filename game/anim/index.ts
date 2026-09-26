@@ -137,7 +137,7 @@ async function comboPop(ctx: GameContext, combo: number): Promise<void> {
   label.anchor.set(0.5);
   label.position.set(LOGICAL_W / 2, 140);
   label.scale.set(0);
-  ctx.hud.root.addChild(label);
+  ctx.hud.addEffect(label);
   await tween(ctx.app, 200, (t) => {
     const s = t < 0.5 ? t * 2 * 1.2 : 1.2 - (t - 0.5) * 2 * 0.2;
     label.scale.set(s);
