@@ -107,7 +107,7 @@ async function main(): Promise<void> {
       board.syncGrid(next.grid);
       ctx.hand.syncHand(next.hand);
       ctx.hand.setPlaceable(next.hand.map((_, i) => session.run.canPlaceAnywhere(i)));
-      hud.setScore(next.score, next.streak);
+      hud.setScore(next.score, next.streak, false);
       if (next.phase === "ended") {
         board.root.alpha = 0.4;
         hud.showGameOver(next.score, () => void startEndless());
@@ -132,13 +132,22 @@ async function main(): Promise<void> {
     await session.startEndless();
   }
 
-  hud.onDaily = () => {
+  hud.onDaily = async () => {
     if (ctx.inputLocked) return;
-    void session.startDaily();
+    if (session.status().dailyDone && session.mode !== "daily") {
+      hud.showHint("Today's daily is done. New board at 00:00 UTC.");
+      setTimeout(() => hud.showHint(null), 2000);
+      return;
+    }
+    await session.startDaily();
   };
 
   applyLetterbox(app, ctx);
   window.addEventListener("resize", () => applyLetterbox(app, ctx));
+  window.visualViewport?.addEventListener("resize", () => applyLetterbox(app, ctx));
+
+  // Dev-only: lets the scripted playtest compare the scene to the engine state. Vite strips this from builds.
+  if (import.meta.env.DEV) Object.assign(globalThis, { __runestone: { ctx, session, drag } });
 
   await session.boot();
 
@@ -155,11 +164,18 @@ async function main(): Promise<void> {
   });
 }
 
+/**
+ * Whole-number scale in device pixels (R13): the canvas is 216x384 and each logical
+ * pixel becomes exactly `scale` physical pixels, so nearest-neighbor stays crisp at
+ * any devicePixelRatio. Pixi maps pointer positions through the canvas rect, so
+ * events still arrive in logical units.
+ */
 function applyLetterbox(app: Application, ctx: GameContext): void {
-  const scale = Math.max(1, Math.floor(Math.min(window.innerWidth / LOGICAL_W, window.innerHeight / LOGICAL_H)));
-  app.canvas.style.width = `${LOGICAL_W * scale}px`;
-  app.canvas.style.height = `${LOGICAL_H * scale}px`;
-  ctx.stageScale = 1; // pointer events arrive in logical units: resolution 1, CSS scaling only
+  const dpr = window.devicePixelRatio || 1;
+  const scale = Math.max(1, Math.floor(Math.min((window.innerWidth * dpr) / LOGICAL_W, (window.innerHeight * dpr) / LOGICAL_H)));
+  app.canvas.style.width = `${(LOGICAL_W * scale) / dpr}px`;
+  app.canvas.style.height = `${(LOGICAL_H * scale) / dpr}px`;
+  ctx.stageScale = 1;
 }
 
 main().catch(console.error);

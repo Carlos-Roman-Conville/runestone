@@ -36,6 +36,7 @@ export class HandView {
     this.handIds = [...hand];
     this.slots.forEach((slot, i) => {
       slot.removeChildren();
+      slot.alpha = 1;
       const id = hand[i];
       if (!id) return;
       const shape = this.shapes.get(id);

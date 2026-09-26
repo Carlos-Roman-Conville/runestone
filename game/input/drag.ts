@@ -38,6 +38,24 @@ export class DragController {
     ctx.app.stage.on("pointermove", (e) => this.onMove(e));
     ctx.app.stage.on("pointerup", (e) => void this.onUp(e));
     ctx.app.stage.on("pointerupoutside", (e) => void this.onUp(e));
+    const cancel = (): void => void this.cancel();
+    globalThis.addEventListener("pointercancel", cancel);
+    globalThis.addEventListener("blur", cancel);
+    globalThis.document?.addEventListener("visibilitychange", () => {
+      if (globalThis.document.visibilityState === "hidden") cancel();
+    });
+  }
+
+  /** Abandon the drag: nothing is placed, the shape goes back to its slot. */
+  private async cancel(): Promise<void> {
+    const a = this.active;
+    if (!a) return;
+    this.active = null;
+    this.ctx.board.setGhost(null, null);
+    this.ctx.board.setLinePreview([], []);
+    const slot = this.ctx.hand.slotCenter(a.handIndex);
+    await playReturnToSlot(this.ctx, a.graphic, slot.x - (a.w * CELL_PX) / 4, slot.y - (a.h * CELL_PX) / 4);
+    a.graphic.destroy();
   }
 
   bindHandPick(handIndex: number, e: FederatedPointerEvent): void {

@@ -165,6 +165,37 @@ describe("Session continue via rewarded ad (R3)", () => {
     expect(session.run.events().at(-1)).toMatchObject({ endedBy: "no_fit" });
   });
 
+  it("a restart after the ad paid out but before the pick goes straight to the pick, no second ad", async () => {
+    const ops = fakeOps();
+    await ops.save.store(RUN_KEY, nearNoFitSave(["single", "line2_h", "line3_v"]));
+    const view = new StubView();
+    // The player watches the ad; the app dies while the pick prompt is up.
+    let killed: Record<string, string> | null = null;
+    view.pickContinueCell = async () => {
+      killed = ops.save.snapshot();
+      return new Promise<Pos>(() => {}); // never answered: the process is gone
+    };
+    const first = make(ops, view);
+    await first.session.boot();
+    void first.session.drop(0, { x: 3, y: 3 });
+    for (let i = 0; i < 20 && !killed; i++) await Promise.resolve();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(killed).not.toBeNull();
+    expect(ops.ads.calls.filter((c) => c === "showRewarded:continue")).toHaveLength(1);
+
+    const reopened = fakeOps();
+    (reopened as { save: FakeSave }).save = new FakeSave(killed as unknown as Record<string, string>);
+    const view2 = new StubView();
+    const second = make(reopened, view2);
+    await second.session.boot();
+    expect(view2.offers).toBe(0); // not asked again
+    expect(view2.picks).toBe(1); // straight to the pick
+    expect(reopened.ads.calls).not.toContain("showRewarded:continue");
+    expect(second.session.run.state().continueUsed).toBe(true);
+    expect(second.session.run.state().phase).toBe("playing");
+    expect(JSON.parse(reopened.save.snapshot()[RUN_KEY] as string).rewardPending).toBeUndefined();
+  });
+
   it("a saved run that was mid-offer re-offers on boot", async () => {
     const ops = fakeOps();
     const run = craft({ rows: singlesOnlyBoard(), hand: ["single", "square3", "square3"], seed: 1 });

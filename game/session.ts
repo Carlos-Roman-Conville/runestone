@@ -25,6 +25,8 @@ export const RUN_KEY = "runestone.run.v1";
 interface StoredRun {
   readonly mode: Mode;
   readonly dailyKey?: string;
+  /** The rewarded ad already paid out; only the cell pick is left. Survives a restart. */
+  readonly rewardPending?: boolean;
   readonly save: RunSave;
 }
 
@@ -66,6 +68,8 @@ export class Session {
   continueAvailable = false;
   private dailyKeyForRun: string | undefined;
   private busy = false;
+  /** The ad paid out and the player has not picked yet; persisted so a restart never re-asks for the ad. */
+  private rewardPending = false;
 
   constructor(private readonly deps: SessionDeps) {
     this.run = Run.start(deps.shapes, deps.config, deps.randomSeed());
@@ -73,13 +77,33 @@ export class Session {
 
   /** Load progress, then resume the saved run if one is in flight, else start endless. */
   async boot(): Promise<void> {
+    this.busy = true;
+    try {
+      await this.bootInner();
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  private async bootInner(): Promise<void> {
     this.progress = Progress.deserialize(await this.loadJson(PROGRESS_KEY));
     const stored = (await this.loadJson(RUN_KEY)) as StoredRun | null;
-    if (stored && stored.save && stored.save.phase !== "ended") {
+    if (stored && stored.save && stored.save.phase === "ended") {
+      // The app was closed after the run ended but before it was recorded: record it now.
       try {
         this.run = Run.deserialize(this.deps.shapes, this.deps.config, stored.save);
         this.mode = stored.mode;
         this.dailyKeyForRun = stored.dailyKey;
+        await this.finishRun();
+      } catch {
+        await this.deps.ops.save.remove(RUN_KEY);
+      }
+    } else if (stored && stored.save) {
+      try {
+        this.run = Run.deserialize(this.deps.shapes, this.deps.config, stored.save);
+        this.mode = stored.mode;
+        this.dailyKeyForRun = stored.dailyKey;
+        this.rewardPending = stored.rewardPending === true && this.run.state().phase === "continue_offered";
         this.pushStatus();
         await this.deps.view.replay([], this.viewState());
         await this.refreshContinueAvailable();
@@ -89,20 +113,39 @@ export class Session {
         // A save from an older engine that no longer loads: start fresh rather than brick.
       }
     }
-    await this.startEndless();
-  }
-
-  async startEndless(): Promise<void> {
     await this.startRun("endless", this.deps.randomSeed(), undefined);
   }
 
-  /** False when today's daily is already done (R7: one attempt per day). */
+  /** Ignored while an action, animation or continue prompt is in progress. */
+  async startEndless(): Promise<void> {
+    if (this.busy) return;
+    this.busy = true;
+    try {
+      await this.startRun("endless", this.deps.randomSeed(), undefined);
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  /**
+   * R7: one attempt per day. Starting spends the attempt (saved at once), so neither a
+   * second tap nor a restart can re-roll it; an in-flight daily is resumed, not replaced.
+   * False when today's attempt is already spent or the session is busy.
+   */
   async startDaily(): Promise<boolean> {
+    if (this.busy) return false;
     const key = dailyKey(this.deps.now());
     if (this.progress.dailyDone(key)) return false;
-    await this.startRun("daily", dailySeedForKey(key), key);
-    this.deps.ops.analytics.track({ name: "daily_played", day: key });
-    return true;
+    this.busy = true;
+    try {
+      this.progress.markDaily(key, 0);
+      await this.deps.ops.save.store(PROGRESS_KEY, JSON.stringify(this.progress.serialize()));
+      await this.startRun("daily", dailySeedForKey(key), key);
+      this.deps.ops.analytics.track({ name: "daily_played", day: key });
+      return true;
+    } finally {
+      this.busy = false;
+    }
   }
 
   viewState(): ViewState {
@@ -140,6 +183,7 @@ export class Session {
     this.run = Run.start(this.deps.shapes, this.deps.config, seed);
     this.mode = mode;
     this.dailyKeyForRun = key;
+    this.rewardPending = false;
     this.deps.ops.analytics.track({ name: "run_start", mode, seed });
     await this.persistRun();
     this.pushStatus();
@@ -155,21 +199,36 @@ export class Session {
     else await this.refreshContinueAvailable();
   }
 
-  /** R3: one rewarded ad per run; the engine already refuses a second offer. */
+  /**
+   * R3: one rewarded ad per run; the engine already refuses a second offer. The moment
+   * the ad pays out, that fact is saved, so a restart between the ad and the cell pick
+   * goes straight back to the pick instead of asking for the ad again.
+   */
   private async handleOffer(): Promise<void> {
     const { ops, view } = this.deps;
-    ops.analytics.track({ name: "continue_offered" });
-    let rewarded = false;
-    if (await view.offerContinue()) {
-      ops.analytics.track({ name: "ad_shown", kind: "rewarded", placement: "continue" });
-      rewarded = await ops.ads.showRewarded("continue");
-      if (rewarded) ops.analytics.track({ name: "ad_rewarded", placement: "continue" });
+    let rewarded = this.rewardPending;
+    if (!rewarded) {
+      ops.analytics.track({ name: "continue_offered" });
+      if (await view.offerContinue()) {
+        ops.analytics.track({ name: "ad_shown", kind: "rewarded", placement: "continue" });
+        try {
+          rewarded = await ops.ads.showRewarded("continue");
+        } catch {
+          rewarded = false; // an SDK error must not strand the run in continue_offered
+        }
+        if (rewarded) {
+          ops.analytics.track({ name: "ad_rewarded", placement: "continue" });
+          ops.analytics.track({ name: "continue_taken" });
+          this.rewardPending = true;
+          await this.persistRun();
+        }
+      }
     }
     let events: GameEvent[];
     if (rewarded) {
-      ops.analytics.track({ name: "continue_taken" });
       const cell = await view.pickContinueCell();
       events = this.run.continueRun(cell.y, cell.x);
+      this.rewardPending = false;
     } else {
       events = this.run.declineContinue();
     }
@@ -214,6 +273,7 @@ export class Session {
     const stored: StoredRun = {
       mode: this.mode,
       ...(this.dailyKeyForRun ? { dailyKey: this.dailyKeyForRun } : {}),
+      ...(this.rewardPending ? { rewardPending: true } : {}),
       save: this.run.serialize(),
     };
     await this.deps.ops.save.store(RUN_KEY, JSON.stringify(stored));
