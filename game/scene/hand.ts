@@ -12,7 +12,7 @@ export class HandView {
 
   constructor(
     private readonly shapes: ShapeSet,
-    private readonly restingTexture: Texture,
+    private readonly textures: { readonly resting: Texture; readonly small: Texture },
     private readonly onPick: HandPickHandler,
   ) {
     this.root.position.set(0, HAND_Y);
@@ -73,13 +73,18 @@ export class HandView {
     return this.makeShapeGraphic(shape, scale);
   }
 
+  /**
+   * Tray shapes (scale 0.5) use the 12 px tile at its own size; carried shapes use the
+   * 24 px tile. Neither is resampled, so every tile edge stays one whole pixel.
+   */
   private makeShapeGraphic(shape: Shape, scale: number): Container {
     const c = new Container();
+    const small = scale === 0.5;
     const px = CELL_PX * scale;
     for (const cell of shape.cells) {
-      const sp = new Sprite(this.restingTexture);
+      const sp = new Sprite(small ? this.textures.small : this.textures.resting);
       sp.roundPixels = true;
-      sp.scale.set(scale);
+      if (!small) sp.scale.set(scale);
       sp.position.set(cell.x * px, cell.y * px);
       c.addChild(sp);
     }

@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     background: "#1a1816",
     antialias: false,
     resolution: 1,
-    autoDensity: true,
+    autoDensity: false,
   });
   mount.appendChild(app.canvas);
 
@@ -122,7 +122,7 @@ async function main(): Promise<void> {
   };
 
   let drag!: DragController;
-  const hand = new HandView(shapes, textures.resting, (idx, e) => drag.bindHandPick(idx, e));
+  const hand = new HandView(shapes, textures, (idx, e) => drag.bindHandPick(idx, e));
   ctx.hand = hand;
   world.addChild(hand.root);
   drag = new DragController(ctx);
@@ -169,14 +169,17 @@ async function main(): Promise<void> {
 }
 
 /**
- * Whole-number scale in device pixels (R13): the canvas is 216x384 and each logical
- * pixel becomes exactly `scale` physical pixels, so nearest-neighbor stays crisp at
- * any devicePixelRatio. Pixi maps pointer positions through the canvas rect, so
- * events still arrive in logical units.
+ * Whole-number scale in device pixels (R13). The renderer draws at that resolution, so
+ * the backing store is 216*scale x 384*scale and the CSS size maps it 1:1 onto physical
+ * pixels. Tile textures are 1x and nearest-filtered, so each tile pixel becomes an exact
+ * scale x scale block (pixel art stays crisp), while text and panels are drawn at full
+ * device resolution instead of being upscaled from 216 px (which made text blocky).
+ * Pixi maps pointers through the canvas rect and resolution, so events stay logical.
  */
 function applyLetterbox(app: Application, ctx: GameContext): void {
   const dpr = window.devicePixelRatio || 1;
   const scale = Math.max(1, Math.floor(Math.min((window.innerWidth * dpr) / LOGICAL_W, (window.innerHeight * dpr) / LOGICAL_H)));
+  if (app.renderer.resolution !== scale || app.renderer.width !== LOGICAL_W * scale) app.renderer.resize(LOGICAL_W, LOGICAL_H, scale);
   app.canvas.style.width = `${(LOGICAL_W * scale) / dpr}px`;
   app.canvas.style.height = `${(LOGICAL_H * scale) / dpr}px`;
   ctx.stageScale = 1;

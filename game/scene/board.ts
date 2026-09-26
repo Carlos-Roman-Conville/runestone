@@ -2,7 +2,7 @@ import { Container, type FederatedPointerEvent, Graphics, Rectangle, Sprite, Tex
 import type { Pos } from "../../engine/grid.js";
 import type { Shape } from "../../engine/shapes.js";
 import { BOARD_CELLS, BOARD_PX, BOARD_X, BOARD_Y, CELL_PX } from "../layout.js";
-import type { TileState } from "../assets/tile.js";
+import type { TileState, TileTextures } from "../assets/tile.js";
 import { PALETTE } from "../assets/tile.js";
 
 export class BoardView {
@@ -13,16 +13,20 @@ export class BoardView {
   private ghostSprites: Sprite[] = [];
   private previewKeys: string[] = [];
 
-  constructor(private readonly textures: Record<TileState, Texture>) {
+  constructor(private readonly textures: TileTextures) {
     this.root.position.set(BOARD_X, BOARD_Y);
     const bg = new Sprite(Texture.WHITE);
     bg.width = BOARD_PX;
     bg.height = BOARD_PX;
     bg.tint = PALETTE.board;
+    // Every empty cell gets a faint 1 px outline on exactly the pixels a tile's edge
+    // occupies, so the grid and the tiles share one rhythm (2 px seams inside, 1 px outside).
     const grid = new Graphics();
-    for (let i = 1; i < BOARD_CELLS; i++) {
+    for (let i = 0; i < BOARD_CELLS; i++) {
       grid.rect(i * CELL_PX, 0, 1, BOARD_PX);
+      grid.rect(i * CELL_PX + CELL_PX - 1, 0, 1, BOARD_PX);
       grid.rect(0, i * CELL_PX, BOARD_PX, 1);
+      grid.rect(0, i * CELL_PX + CELL_PX - 1, BOARD_PX, 1);
     }
     grid.fill({ color: PALETTE.grid });
     this.root.addChild(bg, grid, this.tiles, this.ghostLayer);
