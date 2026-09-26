@@ -97,6 +97,21 @@ describe("Session boot and save", () => {
     expect(again.session.progress.highScore).toBe(session.run.state().score);
   });
 
+  it("a save store that refuses every write never interrupts play, and the view is told", async () => {
+    const ops = fakeOps();
+    ops.save.store = () => Promise.reject(new DOMException("QuotaExceededError"));
+    ops.save.remove = () => Promise.reject(new DOMException("QuotaExceededError"));
+    const { session, view } = make(ops);
+    await session.boot();
+    expect(session.run.state().phase).toBe("playing");
+    const replaysBefore = view.replays.length;
+    await session.drop(0, { x: 0, y: 0 });
+    expect(session.run.state().placements).toBe(1);
+    expect(view.replays.length).toBe(replaysBefore + 1); // the move was animated
+    expect(view.replays.at(-1)?.types[0]).toBe("Placed");
+    expect(view.statuses.at(-1)?.saveFailing).toBe(true);
+  });
+
   it("garbage in the save store does not brick boot", async () => {
     const ops = fakeOps();
     await ops.save.store(RUN_KEY, "{not json");

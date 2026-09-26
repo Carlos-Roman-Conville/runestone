@@ -118,6 +118,7 @@ async function main(): Promise<void> {
     },
     setInputLocked(locked) {
       ctx.inputLocked = locked;
+      if (!locked) drag?.resumePending();
     },
   };
 
@@ -178,10 +179,16 @@ async function main(): Promise<void> {
  */
 function applyLetterbox(app: Application, ctx: GameContext): void {
   const dpr = window.devicePixelRatio || 1;
-  const scale = Math.max(1, Math.floor(Math.min((window.innerWidth * dpr) / LOGICAL_W, (window.innerHeight * dpr) / LOGICAL_H)));
-  if (app.renderer.resolution !== scale || app.renderer.width !== LOGICAL_W * scale) app.renderer.resize(LOGICAL_W, LOGICAL_H, scale);
+  const fit = Math.min((window.innerWidth * dpr) / LOGICAL_W, (window.innerHeight * dpr) / LOGICAL_H);
+  // Whole-number scale when at least 1x fits. Below that (a short portal iframe, a tiny
+  // desktop window) shrink to fit instead of cutting the HUD and tray off: less crisp,
+  // but playable. Found 2026-09-26: a 330 px tall window lost 27 px at top and bottom.
+  const scale = fit >= 1 ? Math.floor(fit) : fit;
+  const resolution = Math.max(1, Math.floor(fit));
+  if (app.renderer.resolution !== resolution || app.renderer.width !== LOGICAL_W * resolution) app.renderer.resize(LOGICAL_W, LOGICAL_H, resolution);
   app.canvas.style.width = `${(LOGICAL_W * scale) / dpr}px`;
   app.canvas.style.height = `${(LOGICAL_H * scale) / dpr}px`;
+  app.canvas.style.imageRendering = fit >= 1 ? "pixelated" : "auto";
   ctx.stageScale = 1;
 }
 

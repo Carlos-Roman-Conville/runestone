@@ -84,7 +84,8 @@ function checkScene(label) {
   if (Math.abs(b.root.alpha - wantAlpha) > 1e-6) probs.push('board alpha ' + b.root.alpha + ' phase ' + st.phase);
   if ((st.phase === 'ended') !== ctx.hud.overlay.visible) probs.push('overlay ' + ctx.hud.overlay.visible + ' phase ' + st.phase);
   const saved = localStorage.getItem('runestone.run.v1');
-  if (st.phase !== 'ended') {
+  if (window.__skipSaveCheck) { /* storage-failure runs: saves are expected to be stale */ }
+  else if (st.phase !== 'ended') {
     if (!saved) probs.push('no run save');
     else if (JSON.stringify(JSON.parse(saved).save) !== JSON.stringify(session.run.serialize())) probs.push('save mismatch');
   } else if (saved) probs.push('ended run still saved');

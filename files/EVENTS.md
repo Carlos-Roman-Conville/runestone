@@ -11,7 +11,7 @@ All events carry `{ type, turn }` where `turn` is the placement count so far. Po
 | `PlacementRejected` | `handIndex`, `origin`, `reason: "out_of_bounds" \| "occupied" \| "no_such_shape"` | Run | an illegal `place()`; no state changed |
 | `Placed` | `handIndex`, `shapeId`, `origin`, `cells: Pos[]` | Placement via Run | a legal placement |
 | `LinesCleared` | `rows: number[]`, `cols: number[]`, `boxes: Pos[]`, `cells: Pos[]` | Clearing via Run | after `Placed`, even when nothing cleared (all arrays empty) |
-| `ComboScored` | `points`, `linesCleared`, `combo` (the combo multiplier applied; 0 when nothing cleared), `streak` (after this placement), `total` | Scoring via Run | after `LinesCleared`, always |
+| `ComboScored` | `points` (whole number, R15), `linesCleared`, `combo` (the combo multiplier applied; 0 when nothing cleared), `streak` (after this placement), `total` | Scoring via Run | after `LinesCleared`, always |
 | `StreakChanged` | `from`, `to` | Scoring via Run | only when the streak value changed |
 | `HandEmpty` | — | Run | the third shape of a hand was placed; a `HandDrawn` follows |
 | `NoFitDetected` | `hand: id[]` | Run | no shape in hand fits anywhere |

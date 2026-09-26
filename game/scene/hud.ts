@@ -55,6 +55,7 @@ export class HudView {
   private readonly watchButton: Container;
   private readonly declineButton: Container;
   private readonly hint: Text;
+  private readonly saveWarning: Text;
   private overlayTap: (() => void) | null = null;
   private overlayShownAt = 0;
   private offerResolve: ((watch: boolean) => void) | null = null;
@@ -83,6 +84,12 @@ export class HudView {
     this.hint.position.set(LOGICAL_W / 2, LOGICAL_H - 48);
     this.hint.visible = false;
     this.root.addChild(this.hint);
+
+    this.saveWarning = new Text({ text: "This browser isn't saving your progress", style: { fill: PALETTE.accent, fontSize: 9, align: "center" } });
+    this.saveWarning.anchor.set(0.5, 0);
+    this.saveWarning.position.set(LOGICAL_W / 2, LOGICAL_H - 20);
+    this.saveWarning.visible = false;
+    this.root.addChild(this.saveWarning);
 
     // Overlay: a dimmer over everything and a stone panel, so prompt text never sits on busy tiles.
     this.overlay.visible = false;
@@ -140,7 +147,8 @@ export class HudView {
     });
   }
 
-  setStatus(status: { mode: "endless" | "daily"; best: number; dailyDone: boolean }): void {
+  setStatus(status: { mode: "endless" | "daily"; best: number; dailyDone: boolean; saveFailing?: boolean }): void {
+    this.saveWarning.visible = status.saveFailing === true;
     this.best = status.best;
     this.mode = status.mode;
     this.bestText.text = `Best ${Math.max(status.best, this.scoreTarget)}`;

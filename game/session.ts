@@ -36,6 +36,8 @@ export interface SessionStatus {
   readonly dailyKey: string;
   readonly dailyDone: boolean;
   readonly adsRemoved: boolean;
+  /** Writes to the save store are failing (private mode, full storage). Play continues. */
+  readonly saveFailing: boolean;
 }
 
 /** What the scene must provide. Everything is async so animations can be awaited. */
@@ -70,6 +72,8 @@ export class Session {
   private busy = false;
   /** The ad paid out and the player has not picked yet; persisted so a restart never re-asks for the ad. */
   private rewardPending = false;
+  /** The last write to the save store failed; the view tells the player progress is not being kept. */
+  private saveFailing = false;
 
   constructor(private readonly deps: SessionDeps) {
     this.run = Run.start(deps.shapes, deps.config, deps.randomSeed());
@@ -96,7 +100,7 @@ export class Session {
         this.dailyKeyForRun = stored.dailyKey;
         await this.finishRun();
       } catch {
-        await this.deps.ops.save.remove(RUN_KEY);
+        await this.saveRemove(RUN_KEY);
       }
     } else if (stored && stored.save) {
       try {
@@ -139,7 +143,7 @@ export class Session {
     this.busy = true;
     try {
       this.progress.markDaily(key, 0);
-      await this.deps.ops.save.store(PROGRESS_KEY, JSON.stringify(this.progress.serialize()));
+      await this.saveStore(PROGRESS_KEY, JSON.stringify(this.progress.serialize()));
       await this.startRun("daily", dailySeedForKey(key), key);
       this.deps.ops.analytics.track({ name: "daily_played", day: key });
       return true;
@@ -160,6 +164,7 @@ export class Session {
       dailyKey: key,
       dailyDone: this.progress.dailyDone(key),
       adsRemoved: this.progress.adsRemoved,
+      saveFailing: this.saveFailing,
     };
   }
 
@@ -250,8 +255,8 @@ export class Session {
     };
     this.progress.record(summary);
     this.deps.ops.analytics.track({ name: "run_end", mode: this.mode, score: state.score, placements: state.placements, endedBy: end.endedBy });
-    await this.deps.ops.save.store(PROGRESS_KEY, JSON.stringify(this.progress.serialize()));
-    await this.deps.ops.save.remove(RUN_KEY);
+    await this.saveStore(PROGRESS_KEY, JSON.stringify(this.progress.serialize()));
+    await this.saveRemove(RUN_KEY);
     this.continueAvailable = false;
     this.pushStatus();
   }
@@ -276,11 +281,44 @@ export class Session {
       ...(this.rewardPending ? { rewardPending: true } : {}),
       save: this.run.serialize(),
     };
-    await this.deps.ops.save.store(RUN_KEY, JSON.stringify(stored));
+    await this.saveStore(RUN_KEY, JSON.stringify(stored));
+  }
+
+  /**
+   * Saving is best effort. A browser that refuses writes (private mode, full quota)
+   * must never interrupt play: the move has already happened in Run, and throwing here
+   * would skip its replay and leave the screen out of step with the game.
+   */
+  private async saveStore(key: string, value: string): Promise<void> {
+    try {
+      await this.deps.ops.save.store(key, value);
+      this.markSave(true);
+    } catch {
+      this.markSave(false);
+    }
+  }
+
+  private async saveRemove(key: string): Promise<void> {
+    try {
+      await this.deps.ops.save.remove(key);
+    } catch {
+      this.markSave(false);
+    }
+  }
+
+  private markSave(ok: boolean): void {
+    if (this.saveFailing === !ok) return;
+    this.saveFailing = !ok;
+    this.pushStatus();
   }
 
   private async loadJson(key: string): Promise<unknown> {
-    const raw = await this.deps.ops.save.load(key);
+    let raw: string | null;
+    try {
+      raw = await this.deps.ops.save.load(key);
+    } catch {
+      return null;
+    }
     if (raw === null) return null;
     try {
       return JSON.parse(raw) as unknown;

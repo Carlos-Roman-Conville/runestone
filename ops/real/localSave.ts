@@ -16,11 +16,16 @@ export class LocalStorageSave implements SavePort {
     }
   }
 
+  /** Rejects when the browser refuses the write (private mode, quota); the session treats that as best effort. */
   async store(key: string, value: string): Promise<void> {
     this.storage.setItem(key, value);
   }
 
   async remove(key: string): Promise<void> {
-    this.storage.removeItem(key);
+    try {
+      this.storage.removeItem(key);
+    } catch {
+      // Removing is never worth failing over.
+    }
   }
 }

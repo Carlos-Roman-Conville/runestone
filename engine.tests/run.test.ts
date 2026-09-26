@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ComboScored, HandDrawn, PlacementRejected, RunEnded } from "../engine/events.js";
-import { Run } from "../engine/run.js";
+import { Run, runConfig } from "../engine/run.js";
 import { config, craft, EMPTY_ROW, firstFit, FULL_ROW, playOut, shapes, singlesOnlyBoard, types } from "./helpers/play.js";
 
 const NO_AD = { continueAvailable: false };
@@ -115,6 +115,20 @@ describe("Run legal placement", () => {
     const events = run.place(1, { x: 3, y: 3 }, NO_AD);
     expect(types(events)).toEqual(["Placed", "LinesCleared", "ComboScored", "StreakChanged"]);
     expect(events[3]).toMatchObject({ from: 1, to: 0 });
+  });
+
+  it("R15: points are rounded to whole numbers even when the table produces halves", () => {
+    const table = { ...config.scoring, perLine: 5 };
+    const cfg = runConfig(config.bag, table);
+    const save = craft({ rows: ["#######.", ...Array(7).fill(EMPTY_ROW)], hand: ["single", "single", "single"], seed: 1 }).serialize();
+    const run = Run.deserialize(shapes, cfg, { ...save, streak: 2 });
+    const raw = 1 * table.perCell + 1 * 5 * table.comboMultiplier[1]! * table.streakMultiplier[2]!;
+    expect(Number.isInteger(raw)).toBe(false); // the table really does produce a half here
+    expect(run.preview(0, { x: 7, y: 0 })?.points).toBe(Math.round(raw));
+    const events = run.place(0, { x: 7, y: 0 }, NO_AD);
+    const scored = events.find((e) => e.type === "ComboScored") as ComboScored;
+    expect(scored.points).toBe(Math.round(raw));
+    expect(Number.isInteger(run.state().score)).toBe(true);
   });
 
   it("R10: a new hand is drawn only when all three are placed", () => {

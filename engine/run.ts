@@ -152,7 +152,7 @@ export class Run {
     const cleared = clearLines(grid, this.config.mode);
     const linesCleared = cleared.rows.length + cleared.cols.length;
     const scored = scorePlacement(cells.length, linesCleared, this.streak, this.config.scoring);
-    return { points: scored.points, linesCleared, rows: cleared.rows, cols: cleared.cols, streakAfter: scored.streakAfter, filledAfter: grid.count(), gridAfter: grid.toRows() };
+    return { points: Math.round(scored.points), linesCleared, rows: cleared.rows, cols: cleared.cols, streakAfter: scored.streakAfter, filledAfter: grid.count(), gridAfter: grid.toRows() };
   }
 
   /** Does hand[handIndex] fit somewhere on the board right now? For the tray to dim dead shapes. Never mutates. */
@@ -199,10 +199,13 @@ export class Run {
     const linesCleared = cleared.rows.length + cleared.cols.length;
     const streakBefore = this.streak;
     const scored = scorePlacement(cells.length, linesCleared, streakBefore, this.config.scoring);
-    this.score += scored.points;
+    // R15: points are whole numbers. The table's multipliers (1.5, 2.5) can produce halves
+    // once perLine is retuned; the score, Progress and the HUD all expect integers.
+    const points = Math.round(scored.points);
+    this.score += points;
     this.streak = scored.streakAfter;
     const combo = linesCleared === 0 ? 0 : comboMultiplierAt(this.config.scoring, linesCleared);
-    this.emit({ type: "ComboScored", turn, points: scored.points, linesCleared, combo, streak: this.streak, total: this.score });
+    this.emit({ type: "ComboScored", turn, points, linesCleared, combo, streak: this.streak, total: this.score });
 
     // StreakChanged (only on change)
     if (this.streak !== streakBefore) this.emit({ type: "StreakChanged", turn, from: streakBefore, to: this.streak });

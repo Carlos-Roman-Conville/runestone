@@ -32,12 +32,12 @@ export async function replayEvents(ctx: GameContext, events: readonly GameEvent[
         break;
       case "ComboScored":
         ctx.hud.setScore(event.total, event.streak);
-        if (event.linesCleared >= 2) await comboPop(ctx, event.combo);
+        if (event.linesCleared >= 2) void comboPop(ctx, event.combo); // decorative: does not hold the input lock
         break;
       case "HandDrawn":
         hand.splice(0, hand.length, ...event.shapes);
         ctx.hand.syncHand(hand);
-        await dealHand(ctx);
+        void dealHand(ctx); // decorative: the new hand can be grabbed while it slides in
         break;
       case "ContinueUsed":
         // Same cue as a line clear; the budget line is "line clear flash, blocks pop".
@@ -137,7 +137,7 @@ async function comboPop(ctx: GameContext, combo: number): Promise<void> {
   label.anchor.set(0.5);
   label.position.set(LOGICAL_W / 2, 140);
   label.scale.set(0);
-  ctx.app.stage.addChild(label);
+  ctx.hud.root.addChild(label);
   await tween(ctx.app, 200, (t) => {
     const s = t < 0.5 ? t * 2 * 1.2 : 1.2 - (t - 0.5) * 2 * 0.2;
     label.scale.set(s);
@@ -150,9 +150,10 @@ async function comboPop(ctx: GameContext, combo: number): Promise<void> {
 
 async function dealHand(ctx: GameContext): Promise<void> {
   const slots = ctx.hand.root.children;
-  const bases = slots.map((s) => s.y);
-  slots.forEach((s, i) => {
-    s.y = (bases[i] ?? 0) + 24;
+  // Slots rest at y = 0. Never read the current y as the base: a deal that starts while another
+  // is still sliding would otherwise capture a mid-slide offset and leave the tray low for good.
+  slots.forEach((s) => {
+    s.y = 24;
   });
   // 40 ms stagger: slot i starts at i * 40 ms, each slides for 120 ms.
   const total = 120 + 40 * (slots.length - 1);
@@ -160,7 +161,7 @@ async function dealHand(ctx: GameContext): Promise<void> {
     const now = t * total;
     slots.forEach((s, i) => {
       const local = Math.min(1, Math.max(0, (now - i * 40) / 120));
-      s.y = (bases[i] ?? 0) + 24 * (1 - local);
+      s.y = 24 * (1 - local);
     });
   });
 }

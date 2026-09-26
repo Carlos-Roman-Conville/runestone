@@ -30,6 +30,8 @@ interface ActiveDrag {
 export class DragController {
   private readonly dragLayer = new Container();
   private active: ActiveDrag | null = null;
+  /** A shape touched while a clear was animating; lifted when the lock ends if still held. */
+  private pending: { handIndex: number; pointerId: number; global: { x: number; y: number } } | null = null;
 
   constructor(private readonly ctx: GameContext) {
     ctx.app.stage.addChild(this.dragLayer);
@@ -48,6 +50,7 @@ export class DragController {
 
   /** Abandon the drag: nothing is placed, the shape goes back to its slot. */
   private async cancel(): Promise<void> {
+    this.pending = null;
     const a = this.active;
     if (!a) return;
     this.active = null;
@@ -60,7 +63,22 @@ export class DragController {
   }
 
   bindHandPick(handIndex: number, e: FederatedPointerEvent): void {
-    if (this.ctx.inputLocked || this.active) return;
+    if (this.active) return;
+    if (this.ctx.inputLocked) {
+      this.pending = { handIndex, pointerId: e.pointerId, global: { x: e.global.x, y: e.global.y } };
+      return;
+    }
+    this.startDrag(handIndex, e.pointerId, e.global);
+  }
+
+  /** Called when the input lock lifts: a grab made during the animation starts now. */
+  resumePending(): void {
+    const p = this.pending;
+    this.pending = null;
+    if (p && !this.active && !this.ctx.inputLocked) this.startDrag(p.handIndex, p.pointerId, p.global);
+  }
+
+  private startDrag(handIndex: number, pointerId: number, global: { x: number; y: number }): void {
     const run = this.ctx.session.run;
     if (run.state().phase !== "playing") return;
     const id = run.state().hand[handIndex];
@@ -69,14 +87,14 @@ export class DragController {
     const graphic = this.ctx.hand.makeDragShape(shape, 1);
     const bounds = shapeSize(shape);
     const slot = this.ctx.hand.slotCenter(handIndex);
-    const pointer = this.toStage(e.global);
+    const pointer = this.toStage(global);
     const active: ActiveDrag = {
       handIndex,
       shape,
       w: bounds.w,
       h: bounds.h,
       graphic,
-      pointerId: e.pointerId,
+      pointerId,
       pointer,
       lift: 0,
       lastOrigin: null,
@@ -95,6 +113,7 @@ export class DragController {
   }
 
   private onMove(e: FederatedPointerEvent): void {
+    if (this.pending && e.pointerId === this.pending.pointerId) this.pending.global = { x: e.global.x, y: e.global.y };
     const a = this.active;
     if (!a || this.ctx.inputLocked) return;
     if (a.pointerId >= 0 && e.pointerId !== a.pointerId) return;
@@ -128,6 +147,7 @@ export class DragController {
   }
 
   private async onUp(e: FederatedPointerEvent): Promise<void> {
+    if (this.pending && e.pointerId === this.pending.pointerId) this.pending = null; // released before the lock lifted
     const a = this.active;
     if (!a) return;
     if (a.pointerId >= 0 && e.pointerId !== a.pointerId) return;
