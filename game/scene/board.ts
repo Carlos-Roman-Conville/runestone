@@ -168,11 +168,19 @@ export class BoardView {
     });
   }
 
+  /**
+   * The continue preview: the filled tiles in the chosen row and column light up (they
+   * are what will clear), exactly like a line preview, and empty cells show a ghost.
+   */
   private setCross(cell: Pos | null): void {
     for (const s of this.ghostSprites) s.destroy();
     this.ghostSprites = [];
+    this.setLinePreview([], []);
     if (!cell) return;
+    this.setLinePreview([cell.y], [cell.x]);
     const put = (x: number, y: number): void => {
+      const tile = this.cellSprites.get(`${x},${y}`);
+      if (tile && tile.visible) return; // lit by the line preview
       const sp = new Sprite(this.textures.ghost);
       sp.roundPixels = true;
       sp.position.set(x * CELL_PX, y * CELL_PX);
@@ -182,6 +190,7 @@ export class BoardView {
     for (let x = 0; x < BOARD_CELLS; x++) put(x, cell.y);
     for (let y = 0; y < BOARD_CELLS; y++) if (y !== cell.y) put(cell.x, y);
   }
+
 
   getSpriteAtCell(x: number, y: number): Sprite | undefined {
     return this.cellSprites.get(`${x},${y}`);

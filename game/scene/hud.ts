@@ -1,6 +1,6 @@
 import { type Application, Container, Graphics, Rectangle, Text } from "pixi.js";
 import { tween } from "../anim/tween.js";
-import { LOGICAL_H, LOGICAL_W } from "../layout.js";
+import { BOARD_PX, BOARD_X, BOARD_Y, LOGICAL_H, LOGICAL_W } from "../layout.js";
 import { PALETTE } from "../assets/tile.js";
 
 const SMALL = { fill: PALETTE.text, fontSize: 10 } as const;
@@ -20,6 +20,23 @@ function button(label: string, x: number, y: number, onTap: () => void): Text {
   return t;
 }
 
+/** A framed button, centred on (cx, y): 1 px edge, stone fill, whole logical pixels. */
+function framedButton(label: string, cx: number, y: number, w: number, onTap: () => void): Container {
+  const c = new Container();
+  const h = 20;
+  const x = Math.round(cx - w / 2);
+  const frame = new Graphics().rect(x, y, w, h).fill({ color: PALETTE.edge }).rect(x + 1, y + 1, w - 2, h - 2).fill({ color: PALETTE.tile });
+  const t = new Text({ text: label, style: { fill: PALETTE.text, fontSize: 11 } });
+  t.anchor.set(0.5);
+  t.position.set(Math.round(cx), Math.round(y + h / 2));
+  c.addChild(frame, t);
+  c.eventMode = "static";
+  c.cursor = "pointer";
+  c.hitArea = new Rectangle(x - 4, y - 4, w + 8, h + 8);
+  c.on("pointertap", onTap);
+  return c;
+}
+
 /**
  * Score, streak, best, mode, the daily button, and three modal prompts: game over,
  * the continue offer, and "tap a cell". Prompts resolve promises so the session can
@@ -35,8 +52,8 @@ export class HudView {
   private readonly overlay = new Container();
   private readonly overlayText: Text;
   private readonly badge: Text;
-  private readonly watchButton: Text;
-  private readonly declineButton: Text;
+  private readonly watchButton: Container;
+  private readonly declineButton: Container;
   private readonly hint: Text;
   private overlayTap: (() => void) | null = null;
   private overlayShownAt = 0;
@@ -71,7 +88,7 @@ export class HudView {
     this.overlay.visible = false;
     this.overlay.eventMode = "static";
     this.overlay.hitArea = new Rectangle(0, 0, LOGICAL_W, LOGICAL_H);
-    const shade = new Graphics().rect(0, 0, LOGICAL_W, LOGICAL_H).fill({ color: PALETTE.shade, alpha: 0.55 });
+    const shade = new Graphics().rect(BOARD_X, BOARD_Y, BOARD_PX, BOARD_PX).fill({ color: PALETTE.shade, alpha: 0.55 });
     const panel = new Graphics()
       .rect(PANEL.x, PANEL.y, PANEL.w, PANEL.h)
       .fill({ color: PALETTE.panel })
@@ -82,16 +99,12 @@ export class HudView {
       .fill({ color: PALETTE.edge });
     this.badge = new Text({ text: "", style: { fill: PALETTE.accent, fontSize: 12 } });
     this.badge.anchor.set(0.5, 0);
-    this.badge.position.set(LOGICAL_W / 2, PANEL.y + 10);
+    this.badge.position.set(LOGICAL_W / 2, PANEL.y + 8);
     this.overlayText = new Text({ text: "", style: { fill: PALETTE.text, fontSize: 13, align: "center", lineHeight: 17 } });
-    this.overlayText.anchor.set(0.5);
-    this.overlayText.position.set(LOGICAL_W / 2, 172);
-    this.watchButton = button("Watch ad", 0, 210, () => this.resolveOffer(true));
-    this.declineButton = button("No thanks", 0, 210, () => this.resolveOffer(false));
-    this.watchButton.anchor.set(0.5, 0);
-    this.declineButton.anchor.set(0.5, 0);
-    this.watchButton.position.x = LOGICAL_W / 2 - 40;
-    this.declineButton.position.x = LOGICAL_W / 2 + 40;
+    this.overlayText.anchor.set(0.5, 0);
+    this.overlayText.position.set(LOGICAL_W / 2, PANEL.y + 26);
+    this.watchButton = framedButton("Watch ad", LOGICAL_W / 2 - 38, 208, 68, () => this.resolveOffer(true));
+    this.declineButton = framedButton("No thanks", LOGICAL_W / 2 + 38, 208, 68, () => this.resolveOffer(false));
     this.overlay.addChild(shade, panel, this.badge, this.overlayText, this.watchButton, this.declineButton);
     this.overlay.on("pointertap", () => {
       if (this.app.ticker.lastTime - this.overlayShownAt < GAME_OVER_TAP_GUARD_MS) return;
@@ -132,7 +145,8 @@ export class HudView {
     this.mode = status.mode;
     this.bestText.text = `Best ${Math.max(status.best, this.scoreTarget)}`;
     this.modeText.text = status.mode === "daily" ? "Daily" : "Endless";
-    this.dailyButton.text = status.dailyDone ? "Daily done" : "Daily";
+    // While the daily is being played its attempt is already spent (R7), but "Daily done" would read as finished.
+    this.dailyButton.text = status.mode === "daily" ? "In daily" : status.dailyDone ? "Daily done" : "Daily";
     this.dailyButton.alpha = status.dailyDone ? 0.5 : 1;
   }
 
