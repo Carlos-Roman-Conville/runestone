@@ -139,7 +139,11 @@ export class Session {
   async startDaily(): Promise<boolean> {
     if (this.busy) return false;
     const key = dailyKey(this.deps.now());
-    if (this.progress.dailyDone(key)) return false;
+    await this.syncProgress(); // another tab may have spent today's attempt
+    if (this.progress.dailyDone(key)) {
+      this.pushStatus();
+      return false;
+    }
     this.busy = true;
     try {
       this.progress.markDaily(key, 0);
@@ -243,6 +247,12 @@ export class Session {
     else await this.refreshContinueAvailable();
   }
 
+  /** Merge whatever progress is in the store (another tab's) into ours before deciding or writing. */
+  private async syncProgress(): Promise<void> {
+    const stored = await this.loadJson(PROGRESS_KEY);
+    if (stored !== null) this.progress.merge(Progress.deserialize(stored));
+  }
+
   private async finishRun(): Promise<void> {
     const end = this.run.events().at(-1) as RunEnded;
     const state = this.run.state();
@@ -253,6 +263,7 @@ export class Session {
       endedBy: end.endedBy,
       ...(this.dailyKeyForRun ? { dailyKey: this.dailyKeyForRun } : {}),
     };
+    await this.syncProgress();
     this.progress.record(summary);
     this.deps.ops.analytics.track({ name: "run_end", mode: this.mode, score: state.score, placements: state.placements, endedBy: end.endedBy });
     await this.saveStore(PROGRESS_KEY, JSON.stringify(this.progress.serialize()));

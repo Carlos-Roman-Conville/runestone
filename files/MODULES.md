@@ -107,7 +107,7 @@ Each card: **Purpose · Public API · Reads · Writes · Must not · Invariants 
 
 ### Progress — `engine/progress.ts` — DONE
 - **Purpose** High score, runs played, days played with their best, monthly trophy state, remove-ads flag, serialization. No game logic.
-- **Public API** `record({ mode, score, placements, endedBy, dailyKey? })`, `markDaily(key, score?)`, `dailyDone(key)`, `dailyBest(key)`, `daysDone(yyyyMm)`, `monthComplete(yyyyMm)`, `setAdsRemoved`, `highScore`, `runsPlayed`, `adsRemoved`, `serialize() → ProgressSave` (version 1), `Progress.deserialize(unknown)` (tolerant: garbage falls back to empty, never throws).
+- **Public API** `record({ mode, score, placements, endedBy, dailyKey? })`, `markDaily(key, score?)`, `dailyDone(key)`, `dailyBest(key)`, `daysDone(yyyyMm)`, `monthComplete(yyyyMm)`, `setAdsRemoved`, `merge(other)` (fold in another tab's saved progress: max best and runs, union of days, purchase sticks), `highScore`, `runsPlayed`, `adsRemoved`, `serialize() → ProgressSave` (version 1), `Progress.deserialize(unknown)` (tolerant: garbage falls back to empty, never throws).
 - **Must not** compute a rule or read the grid.
 - **Tests** `engine.tests/progress.test.ts`: high score only rises; a daily run marks its day and keeps the best; a month is complete only when every day is marked; JSON round trip; garbage and partial saves.
 

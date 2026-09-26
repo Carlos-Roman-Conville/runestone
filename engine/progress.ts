@@ -78,6 +78,21 @@ export class Progress {
     this.removed = removed;
   }
 
+  /**
+   * Fold in progress saved by another copy of the game (a second browser tab sharing the
+   * same storage). Nothing earned is ever lost: best and run count take the larger,
+   * days played are the union with the better score, and a purchase stays purchased.
+   */
+  merge(other: Progress): void {
+    this.high = Math.max(this.high, other.high);
+    this.runs = Math.max(this.runs, other.runs);
+    for (const [key, best] of other.daily) {
+      const mine = this.daily.get(key);
+      this.daily.set(key, mine === undefined ? best : Math.max(mine, best));
+    }
+    this.removed = this.removed || other.removed;
+  }
+
   serialize(): ProgressSave {
     const keys = [...this.daily.keys()].sort();
     const dailyBest: Record<string, number> = {};

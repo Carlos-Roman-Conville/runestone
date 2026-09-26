@@ -52,6 +52,24 @@ describe("Progress", () => {
     expect(back.adsRemoved).toBe(true);
   });
 
+  it("merge keeps everything either copy earned", () => {
+    const a = new Progress();
+    a.record({ mode: "endless", score: 100, placements: 20, endedBy: "no_fit" });
+    a.markDaily("2026-09-25", 40);
+    const b = new Progress();
+    b.record({ mode: "endless", score: 60, placements: 10, endedBy: "no_fit" });
+    b.record({ mode: "endless", score: 70, placements: 10, endedBy: "no_fit" });
+    b.markDaily("2026-09-25", 55);
+    b.markDaily("2026-09-26", 10);
+    b.setAdsRemoved(true);
+    a.merge(b);
+    expect(a.highScore).toBe(100);
+    expect(a.runsPlayed).toBe(2);
+    expect(a.dailyBest("2026-09-25")).toBe(55);
+    expect(a.dailyDone("2026-09-26")).toBe(true);
+    expect(a.adsRemoved).toBe(true);
+  });
+
   it("deserialize tolerates garbage and partial saves", () => {
     expect(Progress.deserialize(null).highScore).toBe(0);
     expect(Progress.deserialize("nope").runsPlayed).toBe(0);

@@ -226,6 +226,37 @@ describe("Session continue via rewarded ad (R3)", () => {
   });
 });
 
+describe("Session with two tabs sharing one store", () => {
+  it("a stale second tab cannot start a daily the first tab already started (R7)", async () => {
+    const ops = fakeOps();
+    const a = make(ops);
+    const b = make(ops);
+    await a.session.boot();
+    await b.session.boot(); // both loaded before either started the daily
+    expect(await a.session.startDaily()).toBe(true);
+    expect(await b.session.startDaily()).toBe(false);
+    expect(b.view.statuses.at(-1)?.dailyDone).toBe(true);
+  });
+
+  it("a stale tab finishing a run never overwrites a better best from the other tab", async () => {
+    const ops = fakeOps();
+    ops.ads.rewardedLoaded = false;
+    const b = make(ops);
+    await b.session.boot(); // tab B opens first, with empty progress
+    // Tab A finishes a big run in the meantime.
+    await ops.save.store(PROGRESS_KEY, JSON.stringify({ version: 1, highScore: 5000, runsPlayed: 9, dailyDone: ["2026-09-24"], dailyBest: { "2026-09-24": 80 }, adsRemoved: false }));
+    // Tab B finishes a small run.
+    await ops.save.store(RUN_KEY, nearNoFitSave());
+    const b2 = make(ops, b.view);
+    await b2.session.boot();
+    await b2.session.drop(0, { x: 3, y: 3 });
+    const saved = JSON.parse(ops.save.snapshot()[PROGRESS_KEY] as string);
+    expect(saved.highScore).toBe(5000);
+    expect(saved.dailyDone).toContain("2026-09-24");
+    expect(saved.runsPlayed).toBe(10);
+  });
+});
+
 describe("Session daily (R7)", () => {
   it("starts today's daily with the day's seed, marks it done at the end, refuses a second attempt", async () => {
     const ops = fakeOps();
