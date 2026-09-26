@@ -1,4 +1,4 @@
-import { Container, type FederatedPointerEvent, Rectangle, Sprite, Texture } from "pixi.js";
+import { Container, type FederatedPointerEvent, Graphics, Rectangle, Sprite, Texture } from "pixi.js";
 import type { Pos } from "../../engine/grid.js";
 import type { Shape } from "../../engine/shapes.js";
 import { BOARD_CELLS, BOARD_PX, BOARD_X, BOARD_Y, CELL_PX } from "../layout.js";
@@ -19,7 +19,13 @@ export class BoardView {
     bg.width = BOARD_PX;
     bg.height = BOARD_PX;
     bg.tint = PALETTE.board;
-    this.root.addChild(bg, this.tiles, this.ghostLayer);
+    const grid = new Graphics();
+    for (let i = 1; i < BOARD_CELLS; i++) {
+      grid.rect(i * CELL_PX, 0, 1, BOARD_PX);
+      grid.rect(0, i * CELL_PX, BOARD_PX, 1);
+    }
+    grid.fill({ color: PALETTE.grid });
+    this.root.addChild(bg, grid, this.tiles, this.ghostLayer);
   }
 
   syncGrid(rows: readonly string[]): void {
@@ -64,18 +70,21 @@ export class BoardView {
     if (sp) sp.visible = false;
   }
 
-  setGhost(shape: Shape | null, origin: Pos | null): void {
+  /** The landing preview. `completes`: the drop finishes a line, so the ghost lights like the line does. */
+  setGhost(shape: Shape | null, origin: Pos | null, completes = false): void {
     for (const s of this.ghostSprites) s.destroy();
     this.ghostSprites = [];
     if (!shape || !origin) return;
     for (const c of shape.cells) {
-      const sp = new Sprite(this.textures.ghost);
+      const sp = new Sprite(completes ? this.textures.lit : this.textures.ghost);
       sp.roundPixels = true;
+      if (completes) sp.alpha = 0.75;
       sp.position.set((origin.x + c.x) * CELL_PX, (origin.y + c.y) * CELL_PX);
       this.ghostLayer.addChild(sp);
       this.ghostSprites.push(sp);
     }
   }
+
 
   /**
    * Light the filled tiles of the rows and columns a drop would complete, so the
@@ -120,23 +129,33 @@ export class BoardView {
    * ghost cross under the pointer, resolves on tap. The board decides nothing about what
    * the choice does; Run does that in continueRun.
    */
-  pickCell(): Promise<Pos> {
+  pickCell(onSelect?: (cell: Pos) => void): Promise<Pos> {
     return new Promise((resolve) => {
       this.root.eventMode = "static";
       this.root.hitArea = new Rectangle(0, 0, BOARD_PX, BOARD_PX);
+      let selected: Pos | null = null;
       const cellAt = (e: FederatedPointerEvent): Pos | null => {
         const p = e.getLocalPosition(this.root);
         const x = Math.floor(p.x / CELL_PX);
         const y = Math.floor(p.y / CELL_PX);
         return x >= 0 && y >= 0 && x < BOARD_CELLS && y < BOARD_CELLS ? { x, y } : null;
       };
-      const onMove = (e: FederatedPointerEvent): void => this.setCross(cellAt(e));
+      // Hover (mouse) previews; it never moves the selection.
+      const onMove = (e: FederatedPointerEvent): void => {
+        if (e.pointerType === "mouse" && !selected) this.setCross(cellAt(e));
+      };
       const onTap = (e: FederatedPointerEvent): void => {
         const cell = cellAt(e);
         if (!cell) return;
+        if (!selected || selected.x !== cell.x || selected.y !== cell.y) {
+          selected = cell;
+          this.setCross(cell);
+          onSelect?.(cell);
+          return;
+        }
         this.root.off("pointermove", onMove);
         this.root.off("pointertap", onTap);
-        this.root.eventMode = "none";
+        this.root.eventMode = "passive";
         this.setCross(null);
         resolve(cell);
       };

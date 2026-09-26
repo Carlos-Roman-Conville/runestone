@@ -47,6 +47,12 @@ export class HandView {
     });
   }
 
+  /** Hide a slot's shape while it is carried, so it is never on screen twice. */
+  setLifted(handIndex: number, lifted: boolean): void {
+    const slot = this.slots[handIndex];
+    if (slot) for (const c of slot.children) c.visible = !lifted;
+  }
+
   /** Dim slots whose shape cannot be placed anywhere (the session asks run.canPlaceAnywhere). */
   setPlaceable(flags: readonly boolean[]): void {
     this.slots.forEach((slot, i) => {

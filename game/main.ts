@@ -74,7 +74,7 @@ async function main(): Promise<void> {
     async pickContinueCell(): Promise<Pos> {
       hud.showHint("Tap a cell to clear its row and column");
       try {
-        return await board.pickCell();
+        return await board.pickCell(() => hud.showHint("Tap it again to clear"));
       } finally {
         hud.showHint(null);
       }
@@ -151,7 +151,11 @@ async function main(): Promise<void> {
 
   await session.boot();
 
-  // Step 1 debug corner: fire the rewarded ad by hand. Removed in step 7 when real ads land.
+  // Step 1 debug corner: fire the rewarded ad by hand. Phone and dev only; removed in step 7.
+  if (!import.meta.env.DEV && !Capacitor.isNativePlatform()) {
+    document.getElementById("test-ad")?.remove();
+    document.getElementById("ad-result")?.remove();
+  }
   document.getElementById("test-ad")?.addEventListener("click", async () => {
     const el = document.getElementById("ad-result");
     if (el) el.textContent = "…";

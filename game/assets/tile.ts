@@ -6,6 +6,12 @@ export const PALETTE = {
   edge: 0x554840,
   lit: 0xa89078,
   text: 0xe8e0d4,
+  /** Faint grid on the empty board (DESIGN: "the same stone, darker, with a faint grid"). */
+  grid: 0x3a332c,
+  /** Overlay dimmer and panel. */
+  shade: 0x0e0c0b,
+  panel: 0x2a2520,
+  accent: 0xd8b878,
 } as const;
 
 export type TileState = "resting" | "lit" | "ghost";

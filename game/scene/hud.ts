@@ -1,9 +1,14 @@
-import { type Application, Container, Rectangle, Text } from "pixi.js";
+import { type Application, Container, Graphics, Rectangle, Text } from "pixi.js";
 import { tween } from "../anim/tween.js";
 import { LOGICAL_H, LOGICAL_W } from "../layout.js";
 import { PALETTE } from "../assets/tile.js";
 
 const SMALL = { fill: PALETTE.text, fontSize: 10 } as const;
+
+/** Taps on the game-over screen are ignored this long after it appears, so the last drag's stray tap cannot skip it. */
+const GAME_OVER_TAP_GUARD_MS = 600;
+
+const PANEL = { x: 20, y: 124, w: LOGICAL_W - 40, h: 124 } as const;
 
 function button(label: string, x: number, y: number, onTap: () => void): Text {
   const t = new Text({ text: label, style: { fill: PALETTE.text, fontSize: 12 } });
@@ -29,14 +34,18 @@ export class HudView {
   private readonly dailyButton: Text;
   private readonly overlay = new Container();
   private readonly overlayText: Text;
+  private readonly badge: Text;
   private readonly watchButton: Text;
   private readonly declineButton: Text;
   private readonly hint: Text;
   private overlayTap: (() => void) | null = null;
+  private overlayShownAt = 0;
   private offerResolve: ((watch: boolean) => void) | null = null;
   private shownScore = 0;
   private scoreTarget = 0;
   private ticking = false;
+  private best = 0;
+  private mode: "endless" | "daily" = "endless";
   onDaily: () => void = () => {};
 
   constructor(private readonly app: Application) {
@@ -58,26 +67,43 @@ export class HudView {
     this.hint.visible = false;
     this.root.addChild(this.hint);
 
+    // Overlay: a dimmer over everything and a stone panel, so prompt text never sits on busy tiles.
     this.overlay.visible = false;
     this.overlay.eventMode = "static";
     this.overlay.hitArea = new Rectangle(0, 0, LOGICAL_W, LOGICAL_H);
-    this.overlayText = new Text({ text: "", style: { fill: PALETTE.text, fontSize: 14, align: "center" } });
+    const shade = new Graphics().rect(0, 0, LOGICAL_W, LOGICAL_H).fill({ color: PALETTE.shade, alpha: 0.55 });
+    const panel = new Graphics()
+      .rect(PANEL.x, PANEL.y, PANEL.w, PANEL.h)
+      .fill({ color: PALETTE.panel })
+      .rect(PANEL.x, PANEL.y, PANEL.w, 1)
+      .rect(PANEL.x, PANEL.y + PANEL.h - 1, PANEL.w, 1)
+      .rect(PANEL.x, PANEL.y, 1, PANEL.h)
+      .rect(PANEL.x + PANEL.w - 1, PANEL.y, 1, PANEL.h)
+      .fill({ color: PALETTE.edge });
+    this.badge = new Text({ text: "", style: { fill: PALETTE.accent, fontSize: 12 } });
+    this.badge.anchor.set(0.5, 0);
+    this.badge.position.set(LOGICAL_W / 2, PANEL.y + 10);
+    this.overlayText = new Text({ text: "", style: { fill: PALETTE.text, fontSize: 13, align: "center", lineHeight: 17 } });
     this.overlayText.anchor.set(0.5);
-    this.overlayText.position.set(LOGICAL_W / 2, 170);
+    this.overlayText.position.set(LOGICAL_W / 2, 172);
     this.watchButton = button("Watch ad", 0, 210, () => this.resolveOffer(true));
     this.declineButton = button("No thanks", 0, 210, () => this.resolveOffer(false));
     this.watchButton.anchor.set(0.5, 0);
     this.declineButton.anchor.set(0.5, 0);
     this.watchButton.position.x = LOGICAL_W / 2 - 40;
     this.declineButton.position.x = LOGICAL_W / 2 + 40;
-    this.overlay.addChild(this.overlayText, this.watchButton, this.declineButton);
-    this.overlay.on("pointertap", () => this.overlayTap?.());
+    this.overlay.addChild(shade, panel, this.badge, this.overlayText, this.watchButton, this.declineButton);
+    this.overlay.on("pointertap", () => {
+      if (this.app.ticker.lastTime - this.overlayShownAt < GAME_OVER_TAP_GUARD_MS) return;
+      this.overlayTap?.();
+    });
     this.root.addChild(this.overlay);
   }
 
-  /** Streak updates at once; the score counts up over ~250 ms with a small punch on a gain. */
+  /** Streak updates at once; the score counts up over ~250 ms with a small punch on a gain. Best follows live. */
   setScore(score: number, streak: number, animate = true): void {
     this.streakText.text = `Streak ${streak}`;
+    this.bestText.text = `Best ${Math.max(this.best, score)}`;
     this.scoreTarget = score;
     if (!animate || score <= this.shownScore) {
       this.shownScore = score;
@@ -102,17 +128,29 @@ export class HudView {
   }
 
   setStatus(status: { mode: "endless" | "daily"; best: number; dailyDone: boolean }): void {
-    this.bestText.text = `Best ${status.best}`;
+    this.best = status.best;
+    this.mode = status.mode;
+    this.bestText.text = `Best ${Math.max(status.best, this.scoreTarget)}`;
     this.modeText.text = status.mode === "daily" ? "Daily" : "Endless";
     this.dailyButton.text = status.dailyDone ? "Daily done" : "Daily";
     this.dailyButton.alpha = status.dailyDone ? 0.5 : 1;
   }
 
+  /**
+   * Game over. `best` here is the best before this run (Progress records the run
+   * after the animation), so a score above it is a new best.
+   */
   showGameOver(score: number, onNewRun: () => void): void {
-    this.overlayText.text = `Game over\nScore: ${score}\n\nTap for new run`;
+    if (this.overlay.visible && this.overlayTap) return; // already showing; keep the tap guard's clock
+    const newBest = score > 0 && score > this.best;
+    this.badge.text = newBest ? "New best!" : "";
+    const title = this.mode === "daily" ? "Daily complete" : "Game over";
+    const tail = this.mode === "daily" ? "New daily at 00:00 UTC\nTap for an endless run" : "Tap for a new run";
+    this.overlayText.text = `${title}\nScore ${score}   Best ${Math.max(this.best, score)}\n\n${tail}`;
     this.watchButton.visible = false;
     this.declineButton.visible = false;
     this.overlayTap = onNewRun;
+    this.overlayShownAt = this.app.ticker.lastTime;
     this.overlay.visible = true;
   }
 
@@ -124,6 +162,7 @@ export class HudView {
 
   /** The continue offer (R3). Resolves with the player's choice. */
   offerContinue(): Promise<boolean> {
+    this.badge.text = "";
     this.overlayText.text = "No moves left.\nWatch an ad to clear\na row and a column?";
     this.watchButton.visible = true;
     this.declineButton.visible = true;

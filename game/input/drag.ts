@@ -56,6 +56,7 @@ export class DragController {
     const slot = this.ctx.hand.slotCenter(a.handIndex);
     await playReturnToSlot(this.ctx, a.graphic, slot.x - (a.w * CELL_PX) / 4, slot.y - (a.h * CELL_PX) / 4);
     a.graphic.destroy();
+    this.ctx.hand.setLifted(a.handIndex, false);
   }
 
   bindHandPick(handIndex: number, e: FederatedPointerEvent): void {
@@ -82,6 +83,7 @@ export class DragController {
       legal: false,
     };
     this.active = active;
+    this.ctx.hand.setLifted(handIndex, true);
     this.dragLayer.addChild(graphic);
     // Start where the shape sits in the tray so the lift is continuous, not a jump.
     graphic.position.set(Math.round(slot.x - (bounds.w * CELL_PX) / 4), Math.round(slot.y - (bounds.h * CELL_PX) / 4));
@@ -121,7 +123,7 @@ export class DragController {
     const preview = this.ctx.session.run.preview(a.handIndex, origin);
     a.lastOrigin = origin;
     a.legal = preview !== null;
-    this.ctx.board.setGhost(preview ? a.shape : null, preview ? origin : null);
+    this.ctx.board.setGhost(preview ? a.shape : null, preview ? origin : null, preview !== null && preview.linesCleared > 0);
     this.ctx.board.setLinePreview(preview ? preview.rows : [], preview ? preview.cols : []);
   }
 
@@ -148,6 +150,7 @@ export class DragController {
     const slot = this.ctx.hand.slotCenter(a.handIndex);
     await playReturnToSlot(this.ctx, a.graphic, slot.x - (a.w * CELL_PX) / 4, slot.y - (a.h * CELL_PX) / 4);
     a.graphic.destroy();
+    this.ctx.hand.setLifted(a.handIndex, false);
   }
 
   private toStage(global: { x: number; y: number }): { x: number; y: number } {

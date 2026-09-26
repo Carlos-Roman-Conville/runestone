@@ -69,6 +69,7 @@ function checkScene(label) {
   ctx.hand.slots.forEach((s, i) => {
     const has = s.children.length > 0;
     if (has !== (st.hand[i] !== null)) probs.push('slot ' + i + ' drawn ' + has + ' hand ' + st.hand[i]);
+    if (s.children.some((c) => !c.visible)) probs.push('slot ' + i + ' still hidden after its drag ended');
     const want = st.hand[i] && !session.run.canPlaceAnywhere(i) ? 0.35 : 1;
     if (st.phase === 'playing' && Math.abs(s.alpha - want) > 1e-6) probs.push('slot ' + i + ' alpha ' + s.alpha + ' want ' + want);
     if (s.y !== 0) probs.push('slot ' + i + ' y ' + s.y);
@@ -112,10 +113,23 @@ window.__drive = async (n) => {
     const s = await waitDecision(step);
     if (s === 'offer' && window.__stopAtOffer) return stats;
     if (s === 'offer') { stats.offers++; if (rnd() < 0.6) { stats.watched++; tap(68, 216); } else { stats.declined++; tap(148, 216); } await sleep(64); continue; }
-    if (s === 'pick') { stats.picks++; tap(12 + Math.floor(rnd() * 8) * 24 + 12, 48 + Math.floor(rnd() * 8) * 24 + 12); await sleep(64); continue; }
+    if (s === 'pick') {
+      // Two-tap pick: sometimes change mind first, then tap the chosen cell twice.
+      stats.picks++;
+      const cell = () => [12 + Math.floor(rnd() * 8) * 24 + 12, 48 + Math.floor(rnd() * 8) * 24 + 12];
+      if (rnd() < 0.3) { const [ax, ay] = cell(); tap(ax, ay); await sleep(32); }
+      const [cx, cy] = cell(); tap(cx, cy); await sleep(32); tap(cx, cy); await sleep(64); continue;
+    }
     await sleep(320);
     checkScene('step ' + step + ' (' + s + ')');
-    if (s === 'ended') { stats.runsEnded++; tap(108, 200); await sleep(64); continue; }
+    if (s === 'ended') {
+      // The game-over screen ignores taps for 600 ms; an early tap must do nothing.
+      stats.runsEnded++;
+      const endedRun = R().session.run;
+      tap(108, 200); await sleep(32);
+      if (R().session.run !== endedRun) throw new Error('game-over tap guard let an early tap through at step ' + step);
+      await sleep(640); tap(108, 200); await sleep(64); continue;
+    }
     const r = rnd();
     const run = R().session.run;
     const before = JSON.stringify(run.state());
